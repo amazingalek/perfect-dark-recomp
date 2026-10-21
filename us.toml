@@ -15,6 +15,9 @@ rom_file_path = "build/relink/stage1.bin"
 recomp_include = "#include \"recomp.h\""
 
 [patches]
+# The game's own functions with C library names clash with the host's declarations: they become <name>_recomp.
+renamed = ["strtol", "acos", "asin", "strncmp", "strncpy", "isalpha", "isdigit", "isspace", "toupper"]
+
 stubs = [
     # The decompilation's virtual memory (src/lib/vm.s, vminit.c): the TLB, which the relink leaves out. vm_boot is
     # patched (patches/boot.c) and nothing calls the rest; a stub keeps each where its address is looked up.
