@@ -29,8 +29,7 @@ def offsetof(struct_name, field):
          "-I", f"{decomp}/include", "-I", f"{decomp}/include/PR", "-I", f"{decomp}/src/include",
          "-I", f"{decomp}/src/generated/ntsc-final"],
         input=src, capture_output=True, text=True, check=True).stdout
-    return int(re.search(r"^offset:s*
-s*.4bytes+(d+)", asm, re.M).group(1))
+    return int(re.search(r"^offset:\s*\n\s*\.4byte\s+(\d+)", asm, re.M).group(1))
 
 
 def symbols():
