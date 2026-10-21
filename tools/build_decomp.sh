@@ -53,6 +53,8 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$ROOT:/src" -w /src/lib/perfect_dark 
     }
     relink relink 0x80001050 0x80200000 0x80220000
     relink relink-b 0x81001050 0x81200000 0x81220000
+    # The relink as a flat image (an ELF section at file offset = its load address), which us.toml recompiles from.
+    mips-linux-gnu-objcopy -O binary /src/build/relink/stage1.elf /src/build/relink/stage1.bin
     mkdir -p /src/syms
     python3 -I /src/tools/relocs.py make /src/build/relink/stage1.elf /src/build/relink/pd.map \
         /src/build/relink-b/stage1.elf /src/syms/relocs.txt

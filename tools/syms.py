@@ -105,10 +105,15 @@ def main(elf_path, map_path, relocs_path, out_path):
     STT_NOTYPE, STT_OBJECT, STT_FUNC, STB_GLOBAL = 0, 1, 2, 1
     named = {}  # addr -> (name, ELF size or 0)
     names_seen = {}
+    # A linker label (_libSegmentStart) gives way to the function at its address (vm_boot), which patches/ names.
+    def label(n):
+        return re.fullmatch(r"_\w+Segment\w*", n) is not None
+
     for name, value, size, bind, typ, sec in syms:
         names_seen[name] = names_seen.get(name, 0) + 1
         if code_section(value) == sec and (typ == STT_FUNC or (typ in (STT_NOTYPE, STT_OBJECT) and bind == STB_GLOBAL)):
-            if value not in named or (size and not named[value][1]):
+            if (value not in named or (size and not named[value][1])
+                    or (label(named[value][0]) and not label(name) and not named[value][1])):
                 named[value] = (name, size if typ == STT_FUNC else 0)
 
     # Where code goes that no symbol names: jal targets, and pointers to code built with lui/addiu or held in .data.

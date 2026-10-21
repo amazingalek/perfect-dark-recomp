@@ -1,0 +1,17 @@
+# N64Recomp config for Perfect Dark (USA, rev 1, NPDE 01): the TLB-free relink of the decompilation that
+# tools/build_decomp.sh makes from the player's ROM (docs/building.md). Run that first, then tools/recompile.sh.
+#
+# The code is recompiled from the relink (build/relink/stage1.bin), where lib, inflate and game are linked at the
+# KSEG0 addresses they sit at in RDRAM, and the symbols are syms/dump.toml's, whose rom addresses are offsets in that
+# image. At run time the player's ROM supplies every byte (patches/boot.c, src/pd_boot.cpp).
+
+[input]
+# The preamble (ROM 0x1000), where IPL3 runs it: it clears .bss, sets the stack and jumps to vm_boot.
+entrypoint = 0x80001000
+# Paths are relative to this file.
+output_func_path = "RecompiledFuncs"
+symbols_file_path = "syms/dump.toml"
+rom_file_path = "build/relink/stage1.bin"
+recomp_include = "#include \"recomp.h\""
+
+[patches]

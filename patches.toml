@@ -1,0 +1,22 @@
+# N64Recomp config for patches/ (patches.elf, built by patches/Makefile): the game functions it replaces, recompiled
+# into RecompiledPatches/ against the game's symbols.
+
+[input]
+# Paths are relative to this file.
+elf_path = "patches/patches.elf"
+output_func_path = "RecompiledPatches"
+single_file_output = true
+
+# Calls to syms.ld's absolute addresses become calls to the natives of those names.
+use_absolute_symbols = true
+
+func_reference_syms_file = "syms/dump.toml"
+data_reference_syms_files = [ "syms/data_dump.toml" ]
+
+# N64Recomp writes the binary itself, so it can patch MIPS32 relocations.
+output_binary_path = "patches/patches.bin"
+
+# clang makes many unpaired LO16s.
+unpaired_lo16_warnings = false
+
+strict_patch_mode = true

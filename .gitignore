@@ -10,6 +10,10 @@
 /RecompiledFuncs/
 /RecompiledPatches/
 /rsp/
+# What patches/Makefile writes
+/patches/*.o
+/patches/*.d
+/patches/patches.map
 # The decomp's own build/, extracted/ and src/assets/ (the ROM's assets) stay in lib/perfect_dark, which ignores them
 # itself; tools/build_decomp.sh writes everything else under build/.
 
@@ -18,3 +22,9 @@
 /build-*/
 /out/
 __pycache__/
+
+# What a run from the checkout writes (portable.txt makes the program keep its data here)
+/portable.txt
+/*.json
+/saves/
+/*.log
