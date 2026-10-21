@@ -7,7 +7,8 @@
 #  2. The relink (tools/relink.ld.patch on the decomp's ld/pd.ld): the same objects linked with lib, inflate and game
 #     where they sit in physical memory, into build/relink/stage1.elf, and again at other bases into
 #     build/relink-b/stage1.elf; and build/relink/stage1.bin, the relink as a flat image, where each section sits at
-#     its load address, which is the rom address syms/dump.toml gives it (us.toml recompiles from it).
+#     its load address, which is the rom address syms/dump.toml gives it (us.toml recompiles from it), with the piracy
+#     checks' code checksums mkrom would write (tools/piracy.py).
 #  3. syms/relocs.txt from the two (tools/relocs.py make), then the local check that the ROM plus that list is the
 #     relink outside .text (tools/relocs.py check), and build/relink/scan.txt (tools/relocs.py scan).
 #  4. syms/dump.toml and syms/data_dump.toml: N64Recomp --dump-context on the relink, with the config tools/syms.py
@@ -56,6 +57,8 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$ROOT:/src" -w /src/lib/perfect_dark 
     relink relink-b 0x81001050 0x81200000 0x81220000
     # The relink as a flat image (an ELF section at file offset = its load address), which us.toml recompiles from.
     mips-linux-gnu-objcopy -O binary /src/build/relink/stage1.elf /src/build/relink/stage1.bin
+    # The piracy checks' code checksums, which the decomp's mkrom writes only into its ROM.
+    python3 -I /src/tools/piracy.py build/ntsc-final/stage1.bin build/ntsc-final/pd.map /src/build/relink/stage1.bin
     mkdir -p /src/syms
     python3 -I /src/tools/relocs.py make /src/build/relink/stage1.elf /src/build/relink/pd.map \
         /src/build/relink-b/stage1.elf /src/syms/relocs.txt
