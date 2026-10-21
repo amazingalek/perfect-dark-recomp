@@ -21,5 +21,7 @@
 void recomp_pd_relocate(s32 segment);
 // Stops the program with a message.
 void recomp_pd_crash(const char *message);
+// The word of the player's ROM at an offset into it.
+void recomp_pd_read_rom(u32 offset, u32 *dst);
 
 #endif

@@ -83,6 +83,11 @@ extern "C" void recomp_pd_crash(uint8_t* rdram, recomp_context* ctx) {
     std::exit(EXIT_FAILURE);
 }
 
+// recomp_pd_read_rom(offset, dst): the word of the player's ROM at offset (patches/piracy.c).
+extern "C" void recomp_pd_read_rom(uint8_t* rdram, recomp_context* ctx) {
+    recomp::do_rom_pio(rdram, ctx->r5, recomp::rom_base + (uint32_t)ctx->r4);
+}
+
 // osPiReadIo(devAddr, data): N64Recomp takes it as one of the runtime's, which has only osEPiReadIo. It reads a word
 // of the ROM, and the game's piracy checks compare the words they read (at 0x340, 0x454, 0xa5c, 0xdc0) with the ones
 // they were built with, so it reads the player's ROM.

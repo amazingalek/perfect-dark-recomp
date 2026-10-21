@@ -56,3 +56,15 @@ stubs = [
     "modelasm_find_node_mtx",
     "modelasm_acos_or_asin",
 ]
+
+# amgr_handle_frame_msg reads the AI's remaining length straight from its register (IO_READ(AI_LEN_REG),
+# audiomgr.c), which isn't memory here: the load goes, and the runtime's count (osAiGetLength's) takes its place.
+[[patches.instruction]]
+func = "amgr_handle_frame_msg"
+vram = 0x8000949C
+value = 0x00000000
+
+[[patches.hook]]
+func = "amgr_handle_frame_msg"
+before_vram = 0x800094A0
+text = "    { void osAiGetLength_recomp(uint8_t*, recomp_context*); gpr v0 = ctx->r2; osAiGetLength_recomp(rdram, ctx); ctx->r15 = ctx->r2; ctx->r2 = v0; }"
