@@ -10,9 +10,8 @@ A port of the N64 version of *Perfect Dark* (USA, revision 1) to PC and to the w
 it. Its symbols come from the [Perfect Dark decompilation](https://github.com/n64decomp/perfect_dark) (MIT), pinned
 at `lib/perfect_dark`. It is not an emulator and it contains no game data: you supply your own ROM.
 
-**Status: nothing runs yet.** The decompilation builds from the ROM and matches it byte for byte, and a relink of it
-without the N64's TLB gives the symbols and the relocation list the recompilation is made from
-([docs/building.md](docs/building.md)). A desktop build that boots to the title screen is next.
+**Status: nothing runs yet.** The work starts from the decompilation: building it from the ROM, a relink of it
+without the N64's TLB, and the symbols and relocation list the recompilation is made from.
 
 ## The ROM
 
