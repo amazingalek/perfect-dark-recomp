@@ -32,12 +32,13 @@
 extern bool g_MainGameLogicEnabled;
 extern u32 g_MainNumGfxTasks;
 extern s32 g_MainChangeToStageNum;
+extern s32 g_StageNum;
 
 RECOMP_PATCH void main_tick(void)
 {
 	Gfx *gdl;
 	Gfx *gdlstart;
-	OSScMsg msg = {OS_SC_DONE_MSG};
+	OSScMsg msg = {OS_SC_DONE_MSG, NULL};
 	s32 i;
 
 	if (g_MainChangeToStageNum < 0 && g_MainNumGfxTasks < NUM_GFXTASKS) {
