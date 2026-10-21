@@ -25,7 +25,8 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$ROOT:/src" -v "$ROM:/rom.z64:ro" -w 
         kill -0 \$pid 2> /dev/null || { echo \"exited after about \${t}s\" >> /src/build/run.log; break; }
         import -window root /src/build/shots/\$(printf %03d \$t).png
     done
-    kill \$pid 2> /dev/null; wait \$pid; echo \"exit \$?\" >> /src/build/run.log
+    # It may not stop on SIGTERM.
+    kill \$pid 2> /dev/null; sleep 2; kill -9 \$pid 2> /dev/null; wait \$pid; echo \"exit \$?\" >> /src/build/run.log
 "
 tail -20 "$ROOT/build/run.log"
 ls "$ROOT/build/shots"

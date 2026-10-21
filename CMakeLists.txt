@@ -297,6 +297,15 @@ set(RECOMP_FRONTEND_RT64_PATH ${CMAKE_SOURCE_DIR}/lib/rt64)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/lib/RecompFrontend)
 
+# PatchesLib before RecompiledFuncs: a patch (RECOMP_PATCH) has the name of the game function it replaces, and every
+# recompiled function is weak (N64Recomp's recomp.h), so the linker keeps the first definition it is given. After
+# RecompiledFuncs, the game's own vm_boot (an empty stub), boot and vm_init would run instead of patches/boot.c's.
+if (PD_PATCHES)
+    target_sources(PerfectDarkRecompiled PRIVATE ${CMAKE_SOURCE_DIR}/src/register_patches.cpp)
+    target_link_libraries(PerfectDarkRecompiled PRIVATE PatchesLib)
+    target_compile_definitions(PerfectDarkRecompiled PRIVATE PD_PATCHES)
+endif()
+
 target_link_libraries(PerfectDarkRecompiled PRIVATE
     RecompiledFuncs
     recompui
@@ -306,12 +315,6 @@ target_link_libraries(PerfectDarkRecompiled PRIVATE
     rt64
     libzstd_static
 )
-
-if (PD_PATCHES)
-    target_sources(PerfectDarkRecompiled PRIVATE ${CMAKE_SOURCE_DIR}/src/register_patches.cpp)
-    target_link_libraries(PerfectDarkRecompiled PRIVATE PatchesLib)
-    target_compile_definitions(PerfectDarkRecompiled PRIVATE PD_PATCHES)
-endif()
 
 if (EMSCRIPTEN)
     # The page (lib/N64Recomp-browser/frontend), with the menus' assets and the controller mappings in its .data file. No ROM:
