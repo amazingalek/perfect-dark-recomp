@@ -10,11 +10,23 @@ A port of the N64 version of *Perfect Dark* (USA, revision 1) to PC and to the w
 it. Its symbols come from the [Perfect Dark decompilation](https://github.com/n64decomp/perfect_dark) (MIT), pinned
 at `lib/perfect_dark`. It is not an emulator and it contains no game data: you supply your own ROM.
 
-**Status: the desktop build boots to the title screen, without sound; nothing past it has been played.** The
-decompilation builds from the ROM and matches it, a relink of it without the N64's TLB gives the symbols and the
-relocation list the recompilation is made from, and the Linux build runs the game's own boot, unzips and relocates its
-code and draws its logos and title screen ([docs/building.md](docs/building.md)). A mission, sound and the web page
-come next.
+**Status: the desktop build plays a mission.** On Linux, with a desktop GPU (through Mesa's Dozen on WSL2),
+*dataDyne Central - Defection* plays from its briefing to its end screen on Agent, with sound. The game's menus work:
+the agent file, the Perfect Menu, mission select, the briefing, retry and next mission. A save survives a restart: the
+agent file, the completed mission and the next one it unlocks. The game draws 30 frames a second, every frame two VIs,
+with its clock at 1.00x real time, in its menus and in Defection's and Investigation's levels alike. RT64 interpolates
+to the display's rate (see [docs/building.md](docs/building.md) for the build and its findings).
+
+Still wrong or not yet checked:
+
+- Once, after 22 minutes of play, the GPU device was lost (Dozen's D3D12 device removed, with an NVIDIA driver error
+  in the same second). A later 17-minute play never lost it, so the cause, Dozen or the game's drawing, isn't known.
+- Why every frame is two VIs, even in a menu that draws little, isn't known. On a console the game draws at 15-30.
+- Speech (MP3): guards' lines start and play to their end in the game's MP3 player, but nobody has listened to them.
+- No Windows build has been linked and run, the launcher has only been skipped (`--boot`), and rumble hasn't been
+  felt on a pad.
+
+The web page comes next.
 
 ## The ROM
 

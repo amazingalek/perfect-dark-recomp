@@ -2,9 +2,9 @@
 //
 // The main loop ticks at most once a retrace (g_Vars.mininc60, 1 in every build) and each tick advances the game by
 // the time it took, counted in 1/60 s and 1/240 s (frametime_calculate, src/game/timing.c): on a console Perfect Dark
-// draws at 15-30 a second, here at whatever the host gives it, up to 60. RT64 interpolates to the display's rate from
-// the rate a frame says it was made at (gEXSetRefreshRate), as GoldenEye's recompilation does, so each frame's display
-// list starts with it.
+// draws at 15-30 a second, here at 30, every frame two VIs (docs/building.md, What it plays). RT64 interpolates to the
+// display's rate from the rate a frame says it was made at (gEXSetRefreshRate), as GoldenEye's recompilation does, so
+// each frame's display list starts with it.
 //
 // main_tick is src/lib/main.c's, as the decompilation builds it for ntsc-final (no DEBUG), with those two commands put
 // at the start of the frame's display list.

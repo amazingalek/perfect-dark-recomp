@@ -4,7 +4,7 @@ The recompilation is made from the [Perfect Dark decompilation](https://github.c
 pinned at `lib/perfect_dark`) built from your own ROM, relinked so that none of its code needs the N64's TLB. The
 first step makes what the recompilation is made from: `syms/` (symbols and the relocation list, tracked) and
 `build/relink/stage1.elf` (the relinked build, which holds the game and is never tracked). The second builds the
-desktop program from it ([The desktop program](#the-desktop-program)), which boots to the title screen.
+desktop program from it ([The desktop program](#the-desktop-program)), which plays the game.
 
 ## What you need
 
@@ -25,7 +25,8 @@ N64Recomp) in a few minutes; the decomp then builds in about a minute on 12 core
 1. The decomp's own build of `ntsc-final`, its `make test` (every segment against `checksums.ntsc-final.md5`) and the
    built ROM's MD5 against yours. It prints `The decompilation matches the ROM.`
 2. The relink: the same objects linked again with `tools/relink.ld.patch` applied to a copy of the decomp's
-   `ld/pd.ld`, into `build/relink/`, and once more at other bases into `build/relink-b/`.
+   `ld/pd.ld`, into `build/relink/`, and once more at other bases into `build/relink-b/`, and the piracy checks' code
+   checksums written into the relink's flat image (`tools/piracy.py`, The piracy checks below).
 3. `syms/relocs.txt` from the two links, then the check that your ROM plus that list is the relink
    (`tools/relocs.py check`). It prints `OK: ...` or what differs.
 4. `syms/dump.toml` and `syms/data_dump.toml`, from N64Recomp's `--dump-context` on the relink, and the check that
@@ -132,8 +133,10 @@ For the recompilation to handle (card 2 on):
   inflate.
 - The piracy checks. Twelve sum the code between two functions (`sched.c:404`, `cheats.c:407`, `bot.c:366`,
   `chr.c:2063` and `4871`, `lv.c:470`, `body.c:547`, `game_006900.c:61`, `chraction.c:7632`, `bondgun.c:3766`,
-  `explosions.c:207`, `bg.c:2094`) and pass when RDRAM holds the ROM's code at those functions' relinked addresses.
-  The others read the ROM at 0xa5c, 0x454 and 0xdc0 (`lv.c:1947`, `objectives.c:108`, `mtx_c.c:309`, `bg.c:1587`,
+  `explosions.c:207`, `bg.c:2094`) against a constant the decomp compiles as a placeholder (0x99aabbcc) and its mkrom
+  fills in only in the ROM it makes (`tools/mkrom/piracy.c`). They pass when RDRAM holds the ROM's code at those
+  functions' relinked addresses and the relink holds mkrom's constants, which `tools/piracy.py` computes as mkrom does
+  and writes into `build/relink/stage1.bin`; they equal the ROM's own. The others read the ROM at 0xa5c, 0x454 and 0xdc0 (`lv.c:1947`, `objectives.c:108`, `mtx_c.c:309`, `bg.c:1587`,
   `propobj.c:14210`), XOR loads with the ROM's word at 0x340 (`dma.c:94`), or compare `osCicId` with 6105
   (`propobj.c:18836`). None depends on an address; on failure each corrupts code or data.
 
@@ -151,21 +154,37 @@ tools/run_linux.sh path/to/pd.z64 120 10    # [seconds, 60] [seconds between scr
 ```
 
 `tools/build_linux.sh` builds the image `tools/docker/Dockerfile.linux`, runs `tools/recompile.sh` (N64Recomp with
-`us.toml` into `RecompiledFuncs/`) and the game's CMake build into `build/linux/PerfectDarkRecompiled`.
-`tools/run_linux.sh` runs it where there is no display (Xvfb, Mesa's lavapipe, no sound device) with `--rom` (store
-the ROM as the launcher's Load ROM does) and `--boot` (start the game without the launcher), and writes screenshots to
-`build/shots/` and the log to `build/run.log`. On Windows the program configures with clang-cl as CI's does, but no
-Windows build has been linked and run yet: the `RecompiledFuncs/` and `RecompiledPatches/` it needs come from the
-steps above.
+`us.toml` into `RecompiledFuncs/`, RSPRecomp with `aspMain.us.toml` into `rsp/`) and the game's CMake build into
+`build/linux/PerfectDarkRecompiled`. `tools/run_linux.sh` runs it where there is no display, on Xvfb, with the GPU
+`tools/linux_env.sh` finds: on WSL2 the host's, through Mesa's Dozen (Vulkan over D3D12, `tools/docker/Dockerfile.run`),
+and elsewhere Mesa's lavapipe on the CPU, which draws a level at a few frames a minute. It runs with `--rom` (store
+the ROM as the launcher's Load ROM does) and `--boot` (start the game without the launcher), and writes screenshots
+to `build/shots/`, the log to `build/run.log` and the sound to `build/sound.wav` (SDL's disk audio driver). On
+Windows the program configures with clang-cl as CI's does, but no Windows build has been linked and run yet.
 
-Under lavapipe, about 15 s in, the game has unzipped and relocated its segments (`[pd] segment N: ... pointers moved,
-0 not` in the log, 584, 1589, 0 and 4309), and the title runs through the Rare logo (black in every screenshot so
-far, taken while lavapipe built its first shaders), the Nintendo logo (about 30 s) and the Perfect Dark logo (about
-40-95 s), whose last frames are the title screen. Then the attract demo loads a
-level, which lavapipe draws at a few frames a minute: the game itself keeps running (its threads wait on RT64,
-RT64's render thread on lavapipe's fence). RT64 takes the game's graphics microcode by its hash, as `F3D_PD`
-(rt64's `src/gbi/rt64_gbi.cpp`). Under lavapipe thin dashed lines show along the logos' triangle edges; whether a
-GPU draws them too is unknown. There is no sound (below).
+To play it by hand, `tools/play_linux.sh` leaves that container running between commands: `start`, `hold` (keys, by
+xdotool's names, held together for a time), `shot`, `peek` (the game's variables, `tools/peek.py`) and `stop`, which
+writes `build/play/sound.wav`. Saves go to `build/home`, which the next `start` finds. The keys are RecompFrontend's
+defaults: A space, B left shift, Z q, Start return, L e, R r, the stick w a s d, the C buttons the arrows, the d-pad
+i j k l, and Escape opens the recomp's own menu.
+
+### What it plays
+
+With an NVIDIA desktop GPU through Dozen, *dataDyne Central - Defection* plays from its briefing to its end screen
+("Completed", Agent, 3:55). The play had sound throughout, its guards fought back, a lift rode the whole height of the
+building, and the outro played. The menus work: a new agent file, the Perfect Menu, mission select, difficulty, the
+briefing, the retry menu, Next Mission and the recomp's menu. The save survives a restart. The next start
+loads the agent file and goes straight to the Perfect Menu, its mission select shows Defection's Agent star, and
+*dataDyne Research - Investigation* is unlocked (and plays). The game finds the Expansion Pak (`g_Is4Mb` 0), so the
+MP3 player is on. Defection's star sky draws; the mission has no water, and rt64#198's flicker hasn't been seen.
+
+The frame rate, from `g_Vars` read while it runs (`thisframestartt` per frame, `diffframe60` its VIs, `lvframe60`
+the game's clock), with the host idle, is 30.0 a second. Every frame is 2 VIs, in a menu and on Defection's roof
+alike, and on Investigation 418 of 450 frames are 2 (16 are 1, 16 are 3). The game's clock runs at 1.000x real time,
+so nothing in the game runs too fast and no fix for a rate above the console's is needed. Each frame tells RT64 its
+rate (`patches/frame_rate.c`), and RT64 interpolates to the display's. Why a frame never takes one VI, even in a menu
+that draws little, isn't known: the main loop ticks at most once a retrace with at most two graphics tasks out
+(`main.c`), and `__scTaskReady` (`sched.c`) holds a task while a VI swap is pending.
 
 ### What the build needs that isn't obvious
 
@@ -188,24 +207,41 @@ GPU draws them too is unknown. There is no sound (below).
   reads the player's ROM instead, `recomp_pd_read_rom`), and `osPiReadIo` (`src/pd_natives.cpp`) reads it too.
 - **The piracy checks** (the list above): `osCicId` is 6105 (`pd::on_init`), the ROM words they compare come from the
   player's ROM, boot's own check is left out of `patches/boot.c`, and the code checksums sum RDRAM, which holds the
-  ROM's code. None was checked one by one at run time; each failure rewrites code in RDRAM (which the recompiled
-  code never runs), corrupts a DMA's data, or erases the EEPROM.
+  ROM's code, against mkrom's constants (`tools/piracy.py`). Each failure rewrites code in RDRAM (which the
+  recompiled code never runs, but a later check sums), corrupts a DMA's data, or erases the EEPROM. With the
+  placeholder in place every code checksum failed: `lv_reset`'s wrote an empty file system over the start of the
+  EEPROM each time a stage loaded, so the Game Pak read Full with no files on it, and five words of `bg_reset` in RDRAM
+  read 0x12.
 - **`modelasm.s`**, whose pieces branch into each other: `us.toml` stubs them, and `patches/modelasm.c` puts the
   decompilation's C for it behind its one entry.
 - **The libultra the runtime leaves out** (`src/pd_libultra.cpp`): the controller pak's internals answer that none is
   plugged in, two of IDO's 64-bit conversions, the TLB and RDP counters. C library names the game defines are renamed
   in `us.toml`.
+- **The paks** (`patches/paks.c`): a Rumble Pak in each connected controller, no Controller Pak and no Transfer Pak.
+  The game asks for a Controller Pak first and tries the Rumble Pak only when that answers with another device, so a
+  controller answers as a console's with a Rumble Pak does. Saves go to the cartridge's EEPROM (16 Kbit), which the
+  runtime keeps in `saves/` under the program's data.
+- **The audio microcode** (`aspMain.us.toml`): Rare's `aspMain` with an MP3 decoder as a second overlay, which
+  RSPRecomp swaps in where the code DMAs it over the main one. `src/main.cpp` queues the samples to SDL and gives the
+  game what is still queued (`get_frames_remaining`). When more than 100 ms is queued it drops whole frames, since
+  dropping part of one put every later sample out of step.
 
 ### Not done yet
 
-- Sound: the audio microcode isn't recompiled (`src/main.cpp`, `get_rsp_microcode`), so each audio task ends at once.
+- The GPU device was lost once, after 22 minutes of play under Dozen. The log says `D3D12: Removing Device.` and then
+  every Vulkan call failed, and the program crashed. The NVIDIA driver logged an error in the same second. A later
+  17-minute play never lost it. Whether Dozen (which Mesa calls non-conformant) or the game's drawing causes it isn't
+  known, and no Windows build exists to tell them apart.
+- Speech: the guards' lines start and play to their end in the game's MP3 player (`g_SndCurMp3`, `g_Mp3Vars`), and
+  the sound has no gaps, but nobody has listened to a line.
+- The launcher (the plays start with `--boot`), rumble on a pad, and a Windows build.
 - `frametime_calculate` (`src/game/timing.c`) spins on `osGetCount`, but `main_loop` calls a tick only half a frame
   after the last, so it spins little; it has no yield.
-- The attract demo, a mission, saves (EEPROM, 16 kbit) and paks have not been played: lavapipe is too slow for it.
 
 ### Debugging it
 
 The program ignores SIGTERM (`run_linux.sh` follows with SIGKILL). gdb with breakpoints set from the start never let
 the game boot in 100 s; attaching once the log shows the relocations works, and a game thread's frames (`rdram`)
 give RDRAM's host address, from which `/proc/<pid>/mem` reads any of the game's variables (addresses in
-`build/relink/pd.map`) while it runs: the title's mode (`g_TitleMode`) and `g_Vars.lvframenum` say where it is.
+`build/relink/pd.map`) while it runs: the title's mode (`g_TitleMode`) and `g_Vars.lvframenum` say where it is. The
+program logs that address itself (`[pd] rdram at`), and `tools/peek.py` reads variables by name from it.
