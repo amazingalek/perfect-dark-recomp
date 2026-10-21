@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Runs the program tools/build_linux.sh built where there is no display: in its image, on Xvfb, with Mesa's lavapipe
-# (Vulkan on the CPU) and SDL's disk audio driver in place of a sound device, from the checkout (assets/ and
-# recompcontrollerdb.txt are read from there). It stores the ROM (--rom), starts the game (--boot) and writes a
+# Runs the program tools/build_linux.sh built where there is no display: in the image tools/linux_env.sh names, on
+# Xvfb, with the GPU it finds (the host's through Mesa's Dozen on WSL2, else lavapipe on the CPU) and SDL's disk audio
+# driver in place of a sound device, from the checkout (assets/ and recompcontrollerdb.txt are read from there). It stores the ROM (--rom), starts the game (--boot) and writes a
 # screenshot every few seconds to build/shots/, the log to build/run.log and the sound to build/sound.wav. The
 # program's data goes to build/home.
 #
@@ -11,11 +11,11 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 ROM=$(realpath "$1")
 SECS=${2:-60}
 STEP=${3:-5}
-IMAGE=pd-linux:$(sha256sum "$ROOT/tools/docker/Dockerfile.linux" | cut -c1-12)
+source "$ROOT/tools/linux_env.sh"
 rm -rf "$ROOT/build/shots"
 mkdir -p "$ROOT/build/shots" "$ROOT/build/home"
 docker run --rm -u "$(id -u):$(id -g)" -v "$ROOT:/src" -v "$ROM:/rom.z64:ro" -w /src -e HOME=/src/build/home \
-    -e SDL_AUDIODRIVER=disk -e SDL_DISKAUDIOFILE=/src/build/sound.raw -e VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json "$IMAGE" bash -uo pipefail -c "
+    -e SDL_AUDIODRIVER=disk -e SDL_DISKAUDIOFILE=/src/build/sound.raw "${PD_GPU_ARGS[@]}" "$PD_RUN_IMAGE" bash -uo pipefail -c "
     Xvfb :99 -screen 0 1280x960x24 -nolisten tcp > /dev/null 2>&1 &
     export DISPLAY=:99
     sleep 1
@@ -29,17 +29,7 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$ROOT:/src" -v "$ROM:/rom.z64:ro" -w 
     # It may not stop on SIGTERM.
     kill \$pid 2> /dev/null; sleep 2; kill -9 \$pid 2> /dev/null; wait \$pid; echo \"exit \$?\" >> /src/build/run.log
 "
-# The disk driver writes what the program asked for (src/main.cpp, reset_audio): 32-bit float stereo at 48 kHz.
-python3 -I - "$ROOT/build/sound.raw" "$ROOT/build/sound.wav" <<'EOF'
-import array, sys, wave
-samples = array.array("f", open(sys.argv[1], "rb").read())
-pcm = array.array("h", (max(-32768, min(32767, int(x * 32767))) for x in samples))
-with wave.open(sys.argv[2], "wb") as out:
-    out.setnchannels(2)
-    out.setsampwidth(2)
-    out.setframerate(48000)
-    out.writeframes(pcm.tobytes())
-EOF
+python3 -I "$ROOT/tools/raw_to_wav.py" "$ROOT/build/sound.raw" "$ROOT/build/sound.wav"
 rm "$ROOT/build/sound.raw"
 tail -20 "$ROOT/build/run.log"
 ls "$ROOT/build/shots"

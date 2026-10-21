@@ -66,6 +66,10 @@ extern "C" void recomp_pd_relocate(uint8_t* rdram, recomp_context* ctx) {
         }
     }
     fprintf(stderr, "[pd] segment %u: %zu pointers moved, %zu not\n", segment, moved, unmoved);
+    // Where RDRAM is in the program's memory, for tools/peek.py, which reads the game's variables while it runs.
+    if (segment == PD_SEG_LIB) {
+        fprintf(stderr, "[pd] rdram at %p\n", (void*)rdram);
+    }
 }
 
 extern "C" void recomp_pd_crash(uint8_t* rdram, recomp_context* ctx) {
