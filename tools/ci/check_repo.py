@@ -5,9 +5,11 @@
    any file big enough to be a RAM or ROM dump.
 2. Every tracked .toml parses.
 3. Every tracked Python file compiles (most tools read the ROM at import, so they can't be run).
+4. syms/relocs.txt is offsets only: a segment and a hex offset a line, no bytes of the game.
 
     py -3 -I tools/ci/check_repo.py
 """
+import re
 import subprocess
 import sys
 import tomllib
@@ -54,6 +56,10 @@ def main() -> int:
                 compile(path.read_bytes(), rel, "exec")
             except SyntaxError as e:
                 errors.append(f"{rel}:{e.lineno}: {e.msg}")
+    relocs = ROOT / "syms" / "relocs.txt"
+    for n, line in enumerate(relocs.read_text().splitlines(), 1):
+        if not line.startswith("#") and not re.fullmatch(r"(lib|data|inflate|game) [0-9a-f]{6}", line):
+            errors.append(f"syms/relocs.txt:{n}: not '<segment> <offset>'")
     for e in errors:
         print(e, file=sys.stderr)
     return 1 if errors else 0
