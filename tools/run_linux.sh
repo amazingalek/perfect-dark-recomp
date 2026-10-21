@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs the program tools/build_linux.sh built where there is no display: in its image, on Xvfb, with Mesa's lavapipe
-# (Vulkan on the CPU) and no sound device. It stores the ROM (--rom), starts the game (--boot) and writes a screenshot
+# (Vulkan on the CPU) and no sound device, from the checkout (assets/ and recompcontrollerdb.txt are read from there). It stores the ROM (--rom), starts the game (--boot) and writes a screenshot
 # every few seconds to build/shots/, the log to build/run.log. The program's data goes to build/home.
 #
 #     tools/run_linux.sh path/to/pd.z64 [seconds, 60] [seconds between shots, 5]
@@ -12,12 +12,12 @@ STEP=${3:-5}
 IMAGE=pd-linux:$(sha256sum "$ROOT/tools/docker/Dockerfile.linux" | cut -c1-12)
 rm -rf "$ROOT/build/shots"
 mkdir -p "$ROOT/build/shots" "$ROOT/build/home"
-docker run --rm -u "$(id -u):$(id -g)" -v "$ROOT:/src" -v "$ROM:/rom.z64:ro" -w /src/build/linux -e HOME=/src/build/home \
+docker run --rm -u "$(id -u):$(id -g)" -v "$ROOT:/src" -v "$ROM:/rom.z64:ro" -w /src -e HOME=/src/build/home \
     -e SDL_AUDIODRIVER=dummy -e VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json "$IMAGE" bash -uo pipefail -c "
     Xvfb :99 -screen 0 1280x960x24 -nolisten tcp > /dev/null 2>&1 &
     export DISPLAY=:99
     sleep 1
-    ./PerfectDarkRecompiled --rom /rom.z64 --boot --window 1280x960 > /src/build/run.log 2>&1 &
+    build/linux/PerfectDarkRecompiled --rom /rom.z64 --boot --window 1280x960 > /src/build/run.log 2>&1 &
     pid=\$!
     for ((t = $STEP; t <= $SECS; t += $STEP)); do
         sleep $STEP
