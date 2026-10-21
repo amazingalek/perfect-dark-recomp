@@ -1,9 +1,9 @@
 # Perfect Dark: Recompiled.
 # Based on rush-2049-recomp's CMakeLists.txt (GPL-3.0), itself on BanjoRecomp's. Desktop and web in one: the desktop
-# program builds on Linux (clang; tools/build_linux.sh) and Windows (clang-cl). With Emscripten (emcmake cmake) it is
-# meant to build the page through lib/N64Recomp-browser/frontend, which nothing has tried yet. RecompiledFuncs/ and
-# RecompiledPatches/ come from tools/recompile.sh and the patches step below, both from the player's ROM
-# (docs/building.md).
+# program builds on Linux (clang; tools/build_linux.sh) and Windows (clang-cl). With Emscripten (emcmake cmake;
+# tools/build_web.sh) it builds the page, PerfectDarkRecompiled.html, through lib/N64Recomp-browser/frontend
+# (docs/web.md). RecompiledFuncs/ and RecompiledPatches/ come from tools/recompile.sh and the patches step below, both
+# from the player's ROM (docs/building.md).
 
 cmake_minimum_required(VERSION 3.20)
 
@@ -60,6 +60,11 @@ if (EMSCRIPTEN)
     # 25 s. The fast link is -O1: 11 s against 190, the wasm 21.1 MB against 19.7. What it costs the frame rate wasn't
     # measurable on that host (42-54 presents a second either way), so the page people play links at -O3.
     include(${CMAKE_SOURCE_DIR}/lib/N64Recomp-browser/frontend/build_speed.cmake)
+    # The shaders the page specializes at build time and builds before the game needs them, in sections: the boot's
+    # before the first frame, each level's when the level first draws (src/rt64_shaders.txt says how it was recorded).
+    if (EXISTS ${CMAKE_SOURCE_DIR}/src/rt64_shaders.txt)
+        set(RT64_PREBUILT_SHADER_LIST ${CMAKE_SOURCE_DIR}/src/rt64_shaders.txt)
+    endif()
 endif()
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -162,13 +167,24 @@ if (PD_PATCHES)
         BYPRODUCTS ${CMAKE_SOURCE_DIR}/patches/patches.elf
     )
 
+    # The recompiler runs where the build does: for the page that is tools/recompile.sh's native N64Recomp, not the
+    # runtime's target, which Emscripten would build for the browser.
+    if (EMSCRIPTEN)
+        set(PD_N64RECOMP ${CMAKE_SOURCE_DIR}/build/n64recomp/N64Recomp)
+        # The patches call the game's functions: undeclared, a call links to a trap in WebAssembly.
+        target_compile_options(PatchesLib PRIVATE -Werror=implicit-function-declaration
+            "SHELL:-include ${CMAKE_SOURCE_DIR}/RecompiledFuncs/funcs.h")
+    else()
+        set(PD_N64RECOMP N64RecompCLI)
+    endif()
+
     add_custom_command(OUTPUT
             ${CMAKE_SOURCE_DIR}/patches/patches.bin
             ${CMAKE_SOURCE_DIR}/RecompiledPatches/patches.c
             ${CMAKE_SOURCE_DIR}/RecompiledPatches/recomp_overlays.inl
             ${CMAKE_SOURCE_DIR}/RecompiledPatches/funcs.h
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/RecompiledPatches
-        COMMAND N64RecompCLI patches.toml
+        COMMAND ${PD_N64RECOMP} patches.toml
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         DEPENDS ${CMAKE_SOURCE_DIR}/patches/patches.elf ${CMAKE_SOURCE_DIR}/patches.toml
     )
