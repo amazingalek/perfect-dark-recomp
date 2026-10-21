@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Runs the program tools/build_linux.sh built where there is no display: in its image, on Xvfb, with Mesa's lavapipe
-# (Vulkan on the CPU) and no sound device, from the checkout (assets/ and recompcontrollerdb.txt are read from there).
-# It stores the ROM (--rom), starts the game (--boot) and writes a screenshot
-# every few seconds to build/shots/, the log to build/run.log. The program's data goes to build/home.
+# (Vulkan on the CPU) and SDL's disk audio driver in place of a sound device, from the checkout (assets/ and
+# recompcontrollerdb.txt are read from there). It stores the ROM (--rom), starts the game (--boot) and writes a
+# screenshot every few seconds to build/shots/, the log to build/run.log and the sound to build/sound.wav. The
+# program's data goes to build/home.
 #
 #     tools/run_linux.sh path/to/pd.z64 [seconds, 60] [seconds between shots, 5]
 set -euo pipefail
@@ -14,7 +15,7 @@ IMAGE=pd-linux:$(sha256sum "$ROOT/tools/docker/Dockerfile.linux" | cut -c1-12)
 rm -rf "$ROOT/build/shots"
 mkdir -p "$ROOT/build/shots" "$ROOT/build/home"
 docker run --rm -u "$(id -u):$(id -g)" -v "$ROOT:/src" -v "$ROM:/rom.z64:ro" -w /src -e HOME=/src/build/home \
-    -e SDL_AUDIODRIVER=dummy -e VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json "$IMAGE" bash -uo pipefail -c "
+    -e SDL_AUDIODRIVER=disk -e SDL_DISKAUDIOFILE=/src/build/sound.raw -e VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json "$IMAGE" bash -uo pipefail -c "
     Xvfb :99 -screen 0 1280x960x24 -nolisten tcp > /dev/null 2>&1 &
     export DISPLAY=:99
     sleep 1
@@ -28,5 +29,17 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$ROOT:/src" -v "$ROM:/rom.z64:ro" -w 
     # It may not stop on SIGTERM.
     kill \$pid 2> /dev/null; sleep 2; kill -9 \$pid 2> /dev/null; wait \$pid; echo \"exit \$?\" >> /src/build/run.log
 "
+# The disk driver writes what the program asked for (src/main.cpp, reset_audio): 32-bit float stereo at 48 kHz.
+python3 -I - "$ROOT/build/sound.raw" "$ROOT/build/sound.wav" <<'EOF'
+import array, sys, wave
+samples = array.array("f", open(sys.argv[1], "rb").read())
+pcm = array.array("h", (max(-32768, min(32767, int(x * 32767))) for x in samples))
+with wave.open(sys.argv[2], "wb") as out:
+    out.setnchannels(2)
+    out.setsampwidth(2)
+    out.setframerate(48000)
+    out.writeframes(pcm.tobytes())
+EOF
+rm "$ROOT/build/sound.raw"
 tail -20 "$ROOT/build/run.log"
 ls "$ROOT/build/shots"
