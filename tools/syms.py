@@ -93,12 +93,12 @@ def main(elf_path, map_path, relocs_path, out_path):
     def code_section(addr):
         return next((s for s, (lo, hi) in text.items() if lo <= addr < hi), None)
 
-    STT_NOTYPE, STT_FUNC, STB_GLOBAL = 0, 2, 1
+    STT_NOTYPE, STT_OBJECT, STT_FUNC, STB_GLOBAL = 0, 1, 2, 1
     named = {}  # addr -> (name, ELF size or 0)
     names_seen = {}
     for name, value, size, bind, typ, sec in syms:
         names_seen[name] = names_seen.get(name, 0) + 1
-        if code_section(value) == sec and (typ == STT_FUNC or (typ == STT_NOTYPE and bind == STB_GLOBAL)):
+        if code_section(value) == sec and (typ == STT_FUNC or (typ in (STT_NOTYPE, STT_OBJECT) and bind == STB_GLOBAL)):
             if value not in named or (size and not named[value][1]):
                 named[value] = (name, size if typ == STT_FUNC else 0)
 
