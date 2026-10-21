@@ -7,7 +7,7 @@
 #
 # The decomp writes its build/, extracted/ and src/assets/ inside lib/perfect_dark, which its own .gitignore ignores,
 # so the submodule stays clean; the ROM is copied there as pd.ntsc-final.z64 (ignored too). `make extract` runs only
-# the first time (src/assets/ntsc-final/ missing): it writes nothing over an asset that is already there.
+# the first time (extracted/ntsc-final/ missing): it writes nothing over an asset that is already there.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 ROM=$(realpath "$1")
@@ -22,7 +22,7 @@ docker image inspect "$IMAGE" >/dev/null 2>&1 || docker build -t "$IMAGE" "$ROOT
 
 cp "$ROM" "$ROOT/lib/perfect_dark/pd.ntsc-final.z64"
 docker run --rm -u "$(id -u):$(id -g)" -v "$ROOT:/src" -w /src/lib/perfect_dark -e ROMID=ntsc-final "$IMAGE" bash -euo pipefail -c "
-    [ -d src/assets/ntsc-final/files ] || make extract
+    [ -f extracted/ntsc-final/lib.bin ] || make extract
     make -j$CPUS rom
     make -j$CPUS test
     echo \"\$(md5sum < build/ntsc-final/pd.z64 | cut -d' ' -f1) build/ntsc-final/pd.z64\"
