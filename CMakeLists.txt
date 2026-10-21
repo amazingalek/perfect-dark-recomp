@@ -307,8 +307,9 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/lib/RecompFrontend)
 # PatchesLib before RecompiledFuncs: a patch (RECOMP_PATCH) has the name of the game function it replaces, and every
 # recompiled function is weak (N64Recomp's recomp.h), so the linker keeps the first definition it is given. After
 # RecompiledFuncs, the game's own vm_boot (an empty stub), boot and vm_init would run instead of patches/boot.c's.
+# rsp/aspMain.cpp, the audio microcode, comes from tools/recompile.sh with RecompiledFuncs/, so CI has neither.
 if (PD_PATCHES)
-    target_sources(PerfectDarkRecompiled PRIVATE ${CMAKE_SOURCE_DIR}/src/register_patches.cpp)
+    target_sources(PerfectDarkRecompiled PRIVATE ${CMAKE_SOURCE_DIR}/src/register_patches.cpp ${CMAKE_SOURCE_DIR}/rsp/aspMain.cpp)
     target_link_libraries(PerfectDarkRecompiled PRIVATE PatchesLib)
     target_compile_definitions(PerfectDarkRecompiled PRIVATE PD_PATCHES)
 endif()

@@ -23,5 +23,7 @@ void recomp_pd_relocate(s32 segment);
 void recomp_pd_crash(const char *message);
 // The word of the player's ROM at an offset into it.
 void recomp_pd_read_rom(u32 offset, u32 *dst);
+// The runtime's osMotorInit: 0 when a Rumble Pak is in the controller, which then rumbles through the runtime.
+s32 recomp_pd_motor_init(OSMesgQueue *mq, OSPfs *pfs, s32 channel);
 
 #endif

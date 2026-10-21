@@ -238,10 +238,11 @@ void queue_samples(int16_t* audio_data, size_t sample_count) {
 }
 
 // What osAiGetLength reads: the frames left of the buffer playing. On the console that is the one buffer, with the
-// one queued after it waiting in the AI's FIFO, and the game (amHandleFrameMessage) queues its last buffer just before
-// it asks, then makes the next one 736 frames plus what it thinks is missing. So the buffer queued last isn't counted
-// while an earlier one still plays: counted, the game always thought itself ahead and made every buffer its minimum,
-// 720 frames for the 735 that play in two retraces, and the sound ran dry 2% of the time.
+// one queued after it waiting in the AI's FIFO. The game (amgr_handle_frame_msg, src/lib/audiomgr.c) reads it every
+// other retrace, before it queues the buffer it made the time before, and makes its next buffer 736 frames at 22020 Hz
+// (two retraces' 734, rounded up), or 552 when more than 248 are left: so the queue grows by two frames a buffer until
+// it is ahead, and one short buffer takes it back. The buffer queued last isn't counted while an earlier one still
+// plays, as on the console, and a retrace's worth less is, so the queue holds that much more against a late buffer.
 size_t get_frames_remaining() {
     constexpr float buffer_offset_frames = 1.0f;
     uint64_t buffered_byte_count = get_queued_audio_bytes();
@@ -299,16 +300,13 @@ void reset_audio(uint32_t output_freq) {
     update_audio_converter();
 }
 
-// The audio microcode isn't recompiled yet (its text runs past IMEM in overlays, which RSPRecomp needs mapped), so an
-// audio task finishes at once with nothing written: the game runs, silent.
-static RspExitReason silent_audio(uint8_t*, uint32_t) {
-    return RspExitReason::Broke;
-}
+// The audio microcode, with its MP3 overlay (aspMain.us.toml, recompiled by tools/recompile.sh into rsp/aspMain.cpp).
+extern RspUcodeFunc aspMain;
 
 RspUcodeFunc* get_rsp_microcode(const OSTask* task) {
     switch (task->t.type) {
     case M_AUDTASK:
-        return silent_audio;
+        return aspMain;
     default:
         fprintf(stderr, "Unknown task: %" PRIu32 "\n", task->t.type);
         return nullptr;

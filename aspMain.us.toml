@@ -1,0 +1,29 @@
+# RSPRecomp config for the game's audio microcode (the decompilation's src/rsp/asp.s: Rare's, as Conker's Bad Fur Day
+# has, libultra's aspMain with an MP3 decoder added), recompiled into rsp/aspMain.cpp by tools/recompile.sh. Its text
+# is the decompilation's build of it (tools/build_decomp.sh), whose bytes are the ROM's.
+#
+# The ucode data's first 16 bytes are two overlays (asp.s, OverlayEntry): overlay 0, the main code, text 0x0-0xF80 at
+# IMEM 0x1080 (where rspboot loads it), and overlay 1, the MP3 decoder, text 0xF80-0x1930 at IMEM 0x1238. Command 7
+# (cmd_MP3, 0x1214) DMAs overlay 1 over the main code from 0x1238 and runs it; it ends at reload_overlay_0 (0x11C8),
+# which DMAs the main code's tail (text 0x1B8 on) back. RSPRecomp writes a function for each overlay in the slot and
+# swaps between them where the code DMAs into IMEM.
+
+text_offset = 0x0
+text_size = 0xF80
+text_address = 0x04001080
+rom_file_path = "lib/perfect_dark/build/ntsc-final/rsp/asp.text.bin"
+output_file_path = "rsp/aspMain.cpp"
+output_function_name = "aspMain"
+
+# The command dispatch table, DMEM 0x10 (asp.s, dispatchTable), which the dispatch jumps through.
+extra_indirect_branch_targets = [
+    0x1AE8, 0x143C, 0x1240, 0x1D84, 0x126C, 0x1B20, 0x12A8, 0x1214,
+    0x141C, 0x1310, 0x13CC, 0x12E4, 0x1FB0, 0x1358, 0x16EC, 0x1408,
+]
+
+[[overlay_slots]]
+text_address = 0x04001238
+overlays = [
+    { offset = 0x1B8, size = 0xDC8 }, # overlay 0 from 0x1238 to its end
+    { offset = 0xF80, size = 0x9B0 }, # overlay 1: its DMA asks for 0x9C0, the last 0x10 past the text and never run
+]

@@ -101,3 +101,10 @@ extern "C" void osPiReadIo_recomp(uint8_t* rdram, recomp_context* ctx) {
     }
     ctx->r2 = 0;
 }
+
+// recomp_pd_motor_init(mq, pfs, channel): the runtime's osMotorInit, for patches/paks.c: 0 when the controller has a
+// Rumble Pak (src/main.cpp, get_connected_device_info), which then rumbles through the runtime's __osMotorAccess.
+extern "C" void osMotorInit_recomp(uint8_t* rdram, recomp_context* ctx);
+extern "C" void recomp_pd_motor_init(uint8_t* rdram, recomp_context* ctx) {
+    osMotorInit_recomp(rdram, ctx);
+}
