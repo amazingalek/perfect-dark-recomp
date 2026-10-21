@@ -176,7 +176,9 @@ building, and the outro played. The menus work: a new agent file, the Perfect Me
 briefing, the retry menu, Next Mission and the recomp's menu. The save survives a restart. The next start
 loads the agent file and goes straight to the Perfect Menu, its mission select shows Defection's Agent star, and
 *dataDyne Research - Investigation* is unlocked (and plays). The game finds the Expansion Pak (`g_Is4Mb` 0), so the
-MP3 player is on. Defection's star sky draws; the mission has no water, and rt64#198's flicker hasn't been seen.
+MP3 player is on. Defection's and Investigation's skies are a fill and stars, which draw. The clouds and water of
+other levels draw too (`patches/sky.c`), seen in Villa's and Chicago's intros and in Chicago in play, each reached
+by setting `g_MainChangeToStageNum` while the game ran. rt64#198's flicker hasn't been seen.
 
 The frame rate, from `g_Vars` read while it runs (`thisframestartt` per frame, `diffframe60` its VIs, `lvframe60`
 the game's clock), with the host idle, is 30.0 a second. Every frame is 2 VIs, in a menu and on Defection's roof
@@ -225,6 +227,10 @@ that draws little, isn't known: the main loop ticks at most once a retrace with 
   RSPRecomp swaps in where the code DMAs it over the main one. `src/main.cpp` queues the samples to SDL and gives the
   game what is still queued (`get_frames_remaining`). When more than 100 ms is queued it drops whole frames, since
   dropping part of one put every later sample out of step.
+- **The sky's clouds and water** (`patches/sky.c`): the game draws them as raw RDP triangles (`sky_render_tri`),
+  which RT64 drops, so a level with clouds showed none. The patch draws the same polygons as 3D triangles, as the
+  decompilation's PC port and GoldenEye's recompilation do. Its header says how they're kept inside the far plane, in
+  a Vtx's range, at the clouds' height and in the view.
 
 ### Not done yet
 
@@ -235,6 +241,8 @@ that draws little, isn't known: the main loop ticks at most once a retrace with 
 - Speech: the guards' lines start and play to their end in the game's MP3 player (`g_SndCurMp3`, `g_Mp3Vars`), and
   the sound has no gaps, but nobody has listened to a line.
 - The launcher (the plays start with `--boot`), rumble on a pad, and a Windows build.
+- The sky patch's clouds and water haven't been compared with a console's. The water's texture scale is the PC
+  port's (a tenth of what the game computes), and nobody has played a level with clouds from start to end.
 - `frametime_calculate` (`src/game/timing.c`) spins on `osGetCount`, but `main_loop` calls a tick only half a frame
   after the last, so it spins little; it has no yield.
 

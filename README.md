@@ -23,6 +23,8 @@ Still wrong or not yet checked:
   in the same second). A later 17-minute play never lost it, so the cause, Dozen or the game's drawing, isn't known.
 - Why every frame is two VIs, even in a menu that draws little, isn't known. On a console the game draws at 15-30.
 - Speech (MP3): guards' lines start and play to their end in the game's MP3 player, but nobody has listened to them.
+- Clouds and water draw through a patch (the game draws them in a way RT64 doesn't), seen in Villa and Chicago but
+  not compared with a console's.
 - No Windows build has been linked and run, the launcher has only been skipped (`--boot`), and rumble hasn't been
   felt on a pad.
 
