@@ -15,12 +15,41 @@ rom_file_path = "build/relink/stage1.bin"
 recomp_include = "#include \"recomp.h\""
 
 [patches]
-# The decompilation's virtual memory (src/lib/vm.s, vminit.c): the TLB, which the relink leaves out. vm_boot is
-# patched (patches/boot.c) and nothing calls the rest; a stub keeps each where its address is looked up.
 stubs = [
+    # The decompilation's virtual memory (src/lib/vm.s, vminit.c): the TLB, which the relink leaves out. vm_boot is
+    # patched (patches/boot.c) and nothing calls the rest; a stub keeps each where its address is looked up.
     "vm_boot",
     "vm_init_vars",
     "vm_handle_miss",
     "vm_unmap_range",
     "handle_fault",
+    # The pieces of the game's hand-written src/lib/modelasm.s, which branch into each other: patches/modelasm.c
+    # replaces its one entry from the rest of the game, modelasm00018680, with the decompilation's C, and nothing
+    # calls the rest. (cosf and sinf, at its end, recompile.)
+    "modelasm00018680",
+    "modelasm_80018A28",
+    "modelasm_80019010",
+    "modelasm_800190BC",
+    "modelasm_800194A4",
+    "modelasm_800194E0",
+    "modelasm_8001954C",
+    "modelasm_80019554",
+    "modelasm_80019574",
+    "modelasm_iterate_things1",
+    "modelasm_iterate_things2",
+    "modelasm_read_frame_data",
+    "modelasm_80019C64",
+    "modelasm_80019C70",
+    "modelasm_80019C88",
+    "modelasm_80019CAC",
+    "modelasm_get_node_rw_data",
+    "modelasm_math_pain1",
+    "modelasm_math_pain2",
+    "modelasm_math_pain3",
+    "modelasm_math_pain4",
+    "modelasm_prepare_rot_mtx180",
+    "modelasm_prepare_rot_mtx360",
+    "modelasm_mtx_multiply",
+    "modelasm_find_node_mtx",
+    "modelasm_acos_or_asin",
 ]
