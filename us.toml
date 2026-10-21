@@ -3,7 +3,7 @@
 #
 # The code is recompiled from the relink (build/relink/stage1.bin), where lib, inflate and game are linked at the
 # KSEG0 addresses they sit at in RDRAM, and the symbols are syms/dump.toml's, whose rom addresses are offsets in that
-# image. At run time the player's ROM supplies every byte (patches/boot.c, src/pd_boot.cpp).
+# image. At run time the player's ROM supplies every byte (patches/boot.c, src/pd_natives.cpp).
 
 [input]
 # The preamble (ROM 0x1000), where IPL3 runs it: it clears .bss, sets the stack and jumps to vm_boot.

@@ -1,9 +1,10 @@
 # Building
 
 The recompilation is made from the [Perfect Dark decompilation](https://github.com/n64decomp/perfect_dark) (MIT,
-pinned at `lib/perfect_dark`) built from your own ROM, relinked so that none of its code needs the N64's TLB. This step
-makes what the recompilation is made from: `syms/` (symbols and the relocation list, tracked) and
-`build/relink/stage1.elf` (the relinked build, which holds the game and is never tracked). Nothing runs yet.
+pinned at `lib/perfect_dark`) built from your own ROM, relinked so that none of its code needs the N64's TLB. The
+first step makes what the recompilation is made from: `syms/` (symbols and the relocation list, tracked) and
+`build/relink/stage1.elf` (the relinked build, which holds the game and is never tracked). The second builds the
+desktop program from it ([The desktop program](#the-desktop-program)), which boots to the title screen.
 
 ## What you need
 
@@ -140,3 +141,71 @@ Harmless or dead in `ntsc-final`: `VM_VIRTUAL_ADDR` (`src/include/lib/vm.h:27`, 
 addresses in `src/game/debug2.c:436-441` (DEBUG only); `crash.c`'s range checks from `vm_boot` to the end of lib
 (DEBUG only, and still right); `osVirtualToPhysical` (KSEG0 addresses never reach its TLB probe); `osMapTLB` (called
 only by `vminit.c`) and `osMapTLBRdb` (`initialize.c:55`, the debugger's mapping).
+
+## The desktop program
+
+```bash
+tools/build_decomp.sh path/to/pd.z64        # once, and again when the decomp or syms/ change
+tools/build_linux.sh                        # [cpus]
+tools/run_linux.sh path/to/pd.z64 120 10    # [seconds, 60] [seconds between screenshots, 5]
+```
+
+`tools/build_linux.sh` builds the image `tools/docker/Dockerfile.linux`, runs `tools/recompile.sh` (N64Recomp with
+`us.toml` into `RecompiledFuncs/`) and the game's CMake build into `build/linux/PerfectDarkRecompiled`.
+`tools/run_linux.sh` runs it where there is no display (Xvfb, Mesa's lavapipe, no sound device) with `--rom` (store
+the ROM as the launcher's Load ROM does) and `--boot` (start the game without the launcher), and writes screenshots to
+`build/shots/` and the log to `build/run.log`. On Windows the program configures with clang-cl as CI's does, but no
+Windows build has been linked and run yet: the `RecompiledFuncs/` and `RecompiledPatches/` it needs come from the
+steps above.
+
+Under lavapipe, about 15 s in, the game has unzipped and relocated its segments (`[pd] segment N: ... pointers moved,
+0 not` in the log, 584, 1589, 0 and 4309), and the title runs through the Rare logo (black in every screenshot so
+far, taken while lavapipe built its first shaders), the Nintendo logo (about 30 s) and the Perfect Dark logo (about
+40-95 s), whose last frames are the title screen. Then the attract demo loads a
+level, which lavapipe draws at a few frames a minute: the game itself keeps running (its threads wait on RT64,
+RT64's render thread on lavapipe's fence). RT64 takes the game's graphics microcode by its hash, as `F3D_PD`
+(rt64's `src/gbi/rt64_gbi.cpp`). Under lavapipe thin dashed lines show along the logos' triangle edges; whether a
+GPU draws them too is unknown. There is no sound (below).
+
+### What the build needs that isn't obvious
+
+- **The patches link first** (`CMakeLists.txt`). A patch has the name of the game function it replaces, and every
+  recompiled function is weak, so the linker keeps the first definition it sees: after `RecompiledFuncs` the game's
+  own `vm_boot` (a stub here), `boot` and `vm_init` run, and nothing boots.
+- **FR on in every thread** (`src/register_overlays.cpp`). IPL3 and the game's `osCreateThread` set the status
+  register's FR bit, and the game's code relies on it: doubles in odd floating-point registers, singles in both of a
+  pair (`src/game/mtxf2lbulkasm.s`). The runtime starts threads with FR off, where those overlap, and every matrix
+  came out wrong (the logos drew as a line, the demo's rooms as streaks). N64Recomp's `CHECK_FR` asserts would have
+  said so, but a release build compiles them out.
+- **`ULTRAMODERN_HOLD_BLOCKED_MESSAGES` on** (`CMakeLists.txt`), as the page always has it. Off, an external message
+  to a full queue goes back into the runtime's queue: the scheduler's audio timer (`sched.c`, every other retrace,
+  to the audio thread's queue, which nothing reads until the game has loaded) kept the idle thread taking it again
+  and again, and `main_init`'s own timer message never came.
+- **Relocating through a sign-extended base** (`src/pd_natives.cpp`). `MEM_W` takes a 64-bit register value; a
+  32-bit sum is zero-extended and lands 4 GB past RDRAM.
+- **No hardware reads.** `amgr_handle_frame_msg` reads `AI_LEN_REG` itself: `us.toml` drops the load and a hook puts
+  `osAiGetLength`'s value in its place. Two piracy checks read the PI and the ROM through KSEG1 (`patches/piracy.c`
+  reads the player's ROM instead, `recomp_pd_read_rom`), and `osPiReadIo` (`src/pd_natives.cpp`) reads it too.
+- **The piracy checks** (the list above): `osCicId` is 6105 (`pd::on_init`), the ROM words they compare come from the
+  player's ROM, boot's own check is left out of `patches/boot.c`, and the code checksums sum RDRAM, which holds the
+  ROM's code. None was checked one by one at run time; each failure rewrites code in RDRAM (which the recompiled
+  code never runs), corrupts a DMA's data, or erases the EEPROM.
+- **`modelasm.s`**, whose pieces branch into each other: `us.toml` stubs them, and `patches/modelasm.c` puts the
+  decompilation's C for it behind its one entry.
+- **The libultra the runtime leaves out** (`src/pd_libultra.cpp`): the controller pak's internals answer that none is
+  plugged in, two of IDO's 64-bit conversions, the TLB and RDP counters. C library names the game defines are renamed
+  in `us.toml`.
+
+### Not done yet
+
+- Sound: the audio microcode isn't recompiled (`src/main.cpp`, `get_rsp_microcode`), so each audio task ends at once.
+- `frametime_calculate` (`src/game/timing.c`) spins on `osGetCount`, but `main_loop` calls a tick only half a frame
+  after the last, so it spins little; it has no yield.
+- The attract demo, a mission, saves (EEPROM, 16 kbit) and paks have not been played: lavapipe is too slow for it.
+
+### Debugging it
+
+The program ignores SIGTERM (`run_linux.sh` follows with SIGKILL). gdb with breakpoints set from the start never let
+the game boot in 100 s; attaching once the log shows the relocations works, and a game thread's frames (`rdram`)
+give RDRAM's host address, from which `/proc/<pid>/mem` reads any of the game's variables (addresses in
+`build/relink/pd.map`) while it runs: the title's mode (`g_TitleMode`) and `g_Vars.lvframenum` say where it is.

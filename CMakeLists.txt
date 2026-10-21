@@ -2,7 +2,8 @@
 # Based on rush-2049-recomp's CMakeLists.txt (GPL-3.0), itself on BanjoRecomp's. Desktop and web in one: the desktop
 # program builds on Linux (clang; tools/build_linux.sh) and Windows (clang-cl). With Emscripten (emcmake cmake) it is
 # meant to build the page through lib/N64Recomp-browser/frontend, which nothing has tried yet. RecompiledFuncs/ and
-# RecompiledPatches/ come from tools/recompile.sh and the patches step below, both from the player's ROM (BUILDING.md).
+# RecompiledPatches/ come from tools/recompile.sh and the patches step below, both from the player's ROM
+# (docs/building.md).
 
 cmake_minimum_required(VERSION 3.20)
 
