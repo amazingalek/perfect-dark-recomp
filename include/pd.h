@@ -9,7 +9,7 @@ namespace pd {
     inline constexpr std::u8string_view program_id = u8"PerfectDarkRecompiled";
     inline constexpr std::string_view program_name = "Perfect Dark: Recompiled";
     // XXH3 (64-bit) of the one ROM the game takes, as the runtime hashes a ROM the player loads (src/main.cpp).
-    inline constexpr uint64_t rom_xxh3 = 0x0ULL;
+    inline constexpr uint64_t rom_xxh3 = 0x7F97EB141007861EULL;
 
     void register_overlays();
     void register_patches();
