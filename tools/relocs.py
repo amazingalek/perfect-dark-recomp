@@ -10,7 +10,7 @@ names are then shifted from the retail addresses to the relinked ones, and the d
         between them, outside .text, are the list. Offsets only, no bytes of the game.
     relocs.py check pd.z64 A.elf A.map relocs.txt
         The local check (needs the ROM; never in CI): the retail segments, inflated, with the list applied, equal the
-        relink's byte for byte outside .text. Prints what differs if not, and what differs in .text (instructions that
+        relink's byte for byte outside .text, and the preamble is the ROM's. Prints what differs if not, and what differs in .text (instructions that
         carry addresses, which the recompiler reads from the relink and the game never reads as data).
     relocs.py scan A.elf A.map
         Words outside .text in the relink that still hold a retail address (0x70000000-0x702fffff,
@@ -41,7 +41,7 @@ def elf_sections(path):
     out = {}
     for name_off, sh_type, _flags, addr, offset, size in headers:
         name = elf[strtab_off + name_off:elf.index(b"\0", strtab_off + name_off)].decode()
-        if name in SEGMENTS:
+        if name in SEGMENTS or name == ".preamble":
             out[name] = (addr, b"" if sh_type == 8 else elf[offset:offset + size])  # 8: NOBITS
     return out
 
@@ -175,6 +175,13 @@ def check(rom_path, a_elf, a_map, list_path):
             print(f"  {seg}+{off:#x}: ROM+list {struct.unpack_from('>I', mine, off)[0]:#010x}, "
                   f"relink {struct.unpack_from('>I', theirs, off)[0]:#010x}")
         failed |= bool(bad or diffs)
+    # The preamble, linked where IPL3 runs it, is the ROM's own (its call to vm_boot is the same address either way).
+    with open(rom_path, "rb") as f:
+        f.seek(0x1000)
+        preamble = f.read(0x50)
+    if a[".preamble"][1] != preamble:
+        print(".preamble: not the ROM's 0x1000-0x1050")
+        failed = True
     print("FAIL: the ROM plus the list is not the relink" if failed else
           "OK: the retail segments, inflated, plus the list equal the relink outside .text")
     return 1 if failed else 0
