@@ -19,4 +19,8 @@ output_binary_path = "patches/patches.bin"
 # clang makes many unpaired LO16s.
 unpaired_lo16_warnings = false
 
+# RECOMP_EXPORT functions and RECOMP_DECLARE_EVENT events are made available to mods; the runtime registers the
+# tables this writes (src/register_patches.cpp) even while there are none.
+allow_exports = true
+
 strict_patch_mode = true
