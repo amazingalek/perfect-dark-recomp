@@ -1,0 +1,20 @@
+# ROMs and ROM-derived data never go in git
+*.z64
+*.n64
+*.v64
+*.rom
+*.bin
+*.elf
+/roms/
+/extracted/
+/RecompiledFuncs/
+/RecompiledPatches/
+/rsp/
+# The decomp's own build/, extracted/ and src/assets/ (the ROM's assets) stay in lib/perfect_dark, which ignores them
+# itself; tools/build_decomp.sh writes everything else under build/.
+
+# Build output
+/build/
+/build-*/
+/out/
+__pycache__/

@@ -1,0 +1,28 @@
+# Checks only; nothing is built, deployed or released. The game ROM is user-supplied and never in git or CI, and
+# everything this repo builds so far is built from it (docs/building.md), so CI checks what is tracked.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: No ROM data tracked, TOML parses, Python compiles
+        run: python -I tools/ci/check_repo.py
