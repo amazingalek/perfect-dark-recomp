@@ -18,6 +18,9 @@ namespace pd {
     // The game entry's on_init_callback (src/register_overlays.cpp): before the preamble runs, every code section at
     // the address the relink links it at, and the values IPL3 leaves in low RAM that the runtime doesn't.
     void on_init(uint8_t* rdram, recomp_context* ctx);
+    // The game entry's thread_create_callback (src/register_overlays.cpp): each game thread starts with the status
+    // register's FR bit set, as the game's osCreateThread gives it.
+    void on_thread_create(uint8_t* rdram, recomp_context* ctx);
 }
 
 #endif

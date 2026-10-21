@@ -1,4 +1,5 @@
-// The recompiled code's sections, and pd::on_init, which loads them before the game starts.
+// The recompiled code's sections, and pd::on_init, which loads them before the game starts; pd::on_init and
+// pd::on_thread_create also set the CPU state the game's code needs (FR, below).
 //
 // The relink links all of the game's code where it runs (lib at 0x80001050, inflate at 0x80200000, game at
 // 0x80220000), but the runtime learns where code is only from DMAs it sees: at start it loads the sections in the
@@ -28,8 +29,15 @@ void pd::register_overlays() {
     recomp::overlays::register_overlays(sections, overlays);
 }
 
+// The status register's FR bit: 32 floating-point registers of 64 bits each, not 16 pairs of 32. IPL3 sets it, and so
+// does the game's osCreateThread for every thread (src/lib/ultra/os/createthread.c), and its code depends on it: it keeps
+// doubles in odd registers and singles in both of a pair (src/game/mtxf2lbulkasm.s), which with the runtime's default
+// of FR off overlap, and every matrix the game builds comes out wrong.
+static void set_fr(recomp_context* ctx) {
+    cop0_status_write(ctx, cop0_status_read(ctx) | 0x04000000);
+}
+
 void pd::on_init(uint8_t* rdram, recomp_context* ctx) {
-    (void)ctx;
     for (const SectionTableEntry& section : section_table) {
         load_overlays(section.rom_addr, section.ram_addr, section.size);
     }
@@ -37,4 +45,11 @@ void pd::on_init(uint8_t* rdram, recomp_context* ctx) {
     // IPL3 writes the CIC's number here; propobj.c's piracy check compares it with 6105.
     constexpr int32_t osCicId = 0x80000310;
     MEM_W(osCicId, 0) = 6105;
+
+    set_fr(ctx);
+}
+
+void pd::on_thread_create(uint8_t* rdram, recomp_context* ctx) {
+    (void)rdram;
+    set_fr(ctx);
 }

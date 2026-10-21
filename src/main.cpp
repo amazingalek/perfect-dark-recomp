@@ -331,6 +331,7 @@ std::vector<recomp::GameEntry> supported_games = {
         .is_enabled = true,
         .entrypoint_address = get_entrypoint_address(),
         .entrypoint = recomp_entrypoint,
+        .thread_create_callback = pd::on_thread_create,
         .on_init_callback = pd::on_init,
     },
 };
