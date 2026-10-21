@@ -10,7 +10,7 @@
 // (menuhandler_accept_mission), the game's own way into a level. `invincible` set keeps
 // every player alive as the Invincible cheat does. Every frame the struct also carries the stage playing, how many
 // stages have started (`loads`: the title's intro plays in Defection's stage, so the stage alone doesn't say a request
-// started it) and the level's clock (g_Vars.lvframe240, 240 a second of the game's own time), which the plans hold
+// started it), whether the player is in control (`incontrol`: in a level, its own view, no cutscene) and the level's clock (g_Vars.lvframe240, 240 a second of the game's own time), which the plans hold
 // their waits on. A request taken during the title's intro is lost: the title goes on to the file menu (stage
 // STAGE_CITRAINING), where a script asks.
 
@@ -31,9 +31,10 @@ struct ShaderSurvey {
 	volatile s32 lvframe240;
 	volatile s32 target;
 	volatile u32 loads;
+	volatile s32 incontrol;
 };
 
-struct ShaderSurvey shader_survey = { { 0x53484452, 0x53525659 }, 0, 0, 0, 0, -1, 0, -1, 0 }; // "SHDR" "SRVY"
+struct ShaderSurvey shader_survey = { { 0x53484452, 0x53525659 }, 0, 0, 0, 0, -1, 0, -1, 0, 0 }; // "SHDR" "SRVY"
 
 void shader_survey_tick(void)
 {
@@ -65,5 +66,7 @@ void shader_survey_tick(void)
 	}
 
 	shader_survey.stagenum = g_StageNum;
+	shader_survey.incontrol = g_StageNum < STAGE_TITLE && !g_Vars.in_cutscene && g_Vars.currentplayer != NULL
+		&& g_Vars.currentplayer->cameramode == CAMERAMODE_DEFAULT;
 	shader_survey.lvframe240 = g_Vars.lvframe240;
 }
