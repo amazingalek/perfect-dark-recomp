@@ -10,7 +10,8 @@
 #  3. syms/relocs.txt from the two (tools/relocs.py make), then the local check that the ROM plus that list is the
 #     relink outside .text (tools/relocs.py check), and build/relink/scan.txt (tools/relocs.py scan).
 #  4. syms/dump.toml and syms/data_dump.toml: N64Recomp --dump-context on the relink, with the config tools/syms.py
-#     writes (a size for each function the ELF gives none).
+#     writes (a size for each function the ELF gives none, and the code no symbol names), and the check that it
+#     covers the code (tools/syms.py check).
 #
 # syms/ is tracked: a change to it shows in `git diff`. Linux with Docker; run from anywhere in the checkout:
 #
@@ -63,4 +64,5 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$ROOT:/src" -w /src/lib/perfect_dark 
     python3 -I /src/tools/syms.py relink/stage1.elf relink/pd.map /src/syms/relocs.txt dump_syms.toml
     N64Recomp dump_syms.toml --dump-context
     mv dump.toml data_dump.toml /src/syms/
+    python3 -I /src/tools/syms.py check relink/stage1.elf relink/pd.map /src/syms/dump.toml
 "

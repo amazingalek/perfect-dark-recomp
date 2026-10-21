@@ -1,15 +1,24 @@
 """Writes the N64Recomp config that dumps the relink's symbols (syms/dump.toml, syms/data_dump.toml), with a size for
 every function the ELF gives none.
 
-    syms.py build/relink/stage1.elf build/relink/pd.map build/dump_syms.toml
+    syms.py build/relink/stage1.elf build/relink/pd.map syms/relocs.txt build/dump_syms.toml
+    syms.py check build/relink/stage1.elf build/relink/pd.map syms/dump.toml
 
 N64Recomp takes a symbol as a function only when it is STT_FUNC with a size. IDO gives its C functions both, but the
 decomp's assembly (`glabel`, src/include/macros.inc) gives a global label no type and no size, and its few
 `.type @function` labels no size: those are sized here, as the distance to the next function in the same code. A
 function whose last instruction pair is no jump falls through into the next one (cosf adds pi/2 and runs into sinf, as
 GoldenEye's does): its size takes the next one's in, so the recompiled function runs to a return. Local labels without
-a type (rzip.s's `.pdheader`) are inside functions, not functions. Prints each function sized here and each fall
-through, and every IDO size that disagrees with the distance to the next function.
+a type (rzip.s's `.pdheader`) are inside functions, not functions.
+
+IDO writes no ELF symbol for a static function (its name is in .mdebug, which the decomp's link discards), and the
+assembly has subroutines with local labels only: code that no symbol names is found where it is reached (a jal's
+target, a code address built with lui/addiu, a .data word in the relocation list that points into code) and right
+after a named function's ELF size, and becomes a manual function named for its object file and address
+(xprintf_8004E690). Prints each fall through and each target found inside a sized function (not split).
+
+`check` reads the dump back: every word of code that isn't a nop is in a function, and every jal lands on the start
+of one.
 
 The entry point is the preamble (ROM 0x1000, linked at 0x80001000 by tools/relink.ld.patch), which N64Recomp names
 recomp_entrypoint.
@@ -196,5 +205,37 @@ def main(elf_path, map_path, relocs_path, out_path):
     print("\n".join(report))
 
 
+def check(elf_path, map_path, dump_path):
+    """The dump covers the code: every word of it that isn't a nop is in a function, and every jal lands on one."""
+    import tomllib
+    with open(dump_path, "rb") as f:
+        dump = tomllib.load(f)
+    data, sections, _ = elf(elf_path)
+    ends = text_ends(map_path)
+    funcs = [(fn["vram"], fn["vram"] + fn["size"]) for sec in dump["section"] for fn in sec["functions"]]
+    starts = {lo for lo, _ in funcs}
+    failed = 0
+    for sec in CODE:
+        lo, hi = sections[sec][0], ends.get(sec, sections[sec][0] + sections[sec][2])
+        covered = bytearray(hi - lo)
+        for a, b in funcs:
+            if lo <= a < hi:
+                covered[a - lo:min(b, hi) - lo] = bytes([1]) * (min(b, hi) - a)
+        for pc in range(lo, hi, 4):
+            w = word(data, sections, sec, pc)
+            target = (pc & 0xF0000000) | (w & 0x3FFFFFF) << 2
+            if w >> 26 == 3 and target not in starts:
+                print(f"{pc:#010x}: jal {target:#010x}, which starts no function")
+                failed += 1
+            if w and not covered[pc - lo]:
+                print(f"{pc:#010x}: code in no function")
+                failed += 1
+    print(f"{dump_path}: {len(funcs)} functions; " + (f"{failed} problems" if failed else
+          "every word of code is in one, and every jal lands on one"))
+    return 1 if failed else 0
+
+
 if __name__ == "__main__":
+    if sys.argv[1] == "check":
+        sys.exit(check(*sys.argv[2:]))
     main(*sys.argv[1:])

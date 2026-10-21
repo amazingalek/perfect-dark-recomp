@@ -10,8 +10,9 @@ names are then shifted from the retail addresses to the relinked ones, and the d
         between them, outside .text, are the list. Offsets only, no bytes of the game.
     relocs.py check pd.z64 A.elf A.map relocs.txt
         The local check (needs the ROM; never in CI): the retail segments, inflated, with the list applied, equal the
-        relink's byte for byte outside .text, and the preamble is the ROM's. Prints what differs if not, and what differs in .text (instructions that
-        carry addresses, which the recompiler reads from the relink and the game never reads as data).
+        relink's byte for byte outside .text, and the preamble is the ROM's. Prints what differs if not, and how many
+        words differ in .text (instructions that carry addresses, which the recompiler reads from the relink and the
+        game never reads as data).
     relocs.py scan A.elf A.map
         Words outside .text in the relink that still hold a retail address (0x70000000-0x702fffff,
         0x7f000000-0x7f1fffff): hard-coded addresses no link can move.
