@@ -8,8 +8,11 @@
 // (patches/frame_rate.c) calls shader_survey_tick once a frame on the game's main thread, so a request is taken between
 // frames: the mission is set up on Agent, alone, and started as mission select's Accept does
 // (menuhandler_accept_mission), the game's own way into a level. `invincible` set keeps
-// every player alive as the Invincible cheat does. Every frame the struct also carries the stage playing and the
-// level's clock (g_Vars.lvframe240, 240 a second of the game's own time), which the plans hold their waits on.
+// every player alive as the Invincible cheat does. Every frame the struct also carries the stage playing, how many
+// stages have started (`loads`: the title's intro plays in Defection's stage, so the stage alone doesn't say a request
+// started it) and the level's clock (g_Vars.lvframe240, 240 a second of the game's own time), which the plans hold
+// their waits on. A request taken during the title's intro is lost: the title goes on to the file menu (stage
+// STAGE_CITRAINING), where a script asks.
 
 #include "patches.h"
 #include "game/mainmenu.h"
@@ -27,9 +30,10 @@ struct ShaderSurvey {
 	volatile s32 stagenum;
 	volatile s32 lvframe240;
 	volatile s32 target;
+	volatile u32 loads;
 };
 
-struct ShaderSurvey shader_survey = { { 0x53484452, 0x53525659 }, 0, 0, 0, 0, -1, 0, -1 }; // "SHDR" "SRVY"
+struct ShaderSurvey shader_survey = { { 0x53484452, 0x53525659 }, 0, 0, 0, 0, -1, 0, -1, 0 }; // "SHDR" "SRVY"
 
 void shader_survey_tick(void)
 {
@@ -54,6 +58,10 @@ void shader_survey_tick(void)
 				g_Vars.players[i]->invincible = 1;
 			}
 		}
+	}
+
+	if (shader_survey.stagenum != g_StageNum) {
+		shader_survey.loads++;
 	}
 
 	shader_survey.stagenum = g_StageNum;
