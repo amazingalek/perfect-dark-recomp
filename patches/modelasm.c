@@ -24,6 +24,8 @@
 #define model_get_node_rw_data pd_c_model_get_node_rw_data
 #define cosf pd_c_cosf
 #define sinf pd_c_sinf
+f32 pd_c_cosf(f32 radians);
+f32 pd_c_sinf(f32 radians);
 #include "../lib/perfect_dark/src/lib/modelasm_c.c"
 #undef modelasm00018680
 
