@@ -81,6 +81,12 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/lib/rt64 ${CMAKE_BINARY_DIR}/rt64)
 
 set(BUILD_SHARED_LIBS OFF)
 
+# On the desktop too, as the page always has it: an external message to a full queue waits aside for room instead of
+# going back into the runtime's queue of them. Requeued, the game's audio timer (sched.c, every other retrace, to the
+# audio thread's queue, which nothing reads until the game has loaded) kept the idle thread taking it again and again,
+# and main_init's own timer message, behind it, never came: the boot stopped before the game was unzipped.
+set(ULTRAMODERN_HOLD_BLOCKED_MESSAGES ON CACHE BOOL "" FORCE)
+
 add_subdirectory(${CMAKE_SOURCE_DIR}/lib/N64ModernRuntime)
 
 if (EMSCRIPTEN)
