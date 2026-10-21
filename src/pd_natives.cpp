@@ -39,18 +39,20 @@ extern "C" void recomp_pd_relocate(uint8_t* rdram, recomp_context* ctx) {
         ultramodern::error_handling::message_box("recomp_pd_relocate: no such segment");
         std::exit(EXIT_FAILURE);
     }
-    int32_t base = (int32_t)segment_starts[segment];
+    // A register's value, sign-extended as MEM_W expects: a 32-bit sum would be zero-extended, 4 GB past RDRAM.
+    gpr base = (int32_t)segment_starts[segment];
     size_t moved = 0;
     size_t unmoved = 0;
     for (const PdReloc& reloc : pd_relocs) {
         if (reloc.segment != segment) {
             continue;
         }
-        uint32_t value = (uint32_t)MEM_W(reloc.offset, base);
+        int32_t offset = (int32_t)reloc.offset;
+        uint32_t value = (uint32_t)MEM_W(offset, base);
         bool found = false;
         for (const Move& move : moves) {
             if (value >= move.retail_start && value <= move.retail_start + (move.end - move.start)) {
-                MEM_W(reloc.offset, base) = (int32_t)(value - move.retail_start + move.start);
+                MEM_W(offset, base) = (int32_t)(value - move.retail_start + move.start);
                 found = true;
                 break;
             }
