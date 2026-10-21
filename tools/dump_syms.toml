@@ -1,0 +1,7 @@
+# N64Recomp's config for `N64Recomp tools/dump_syms.toml --dump-context`, which tools/build_decomp.sh runs on the
+# relinked ELF to make syms/dump.toml (functions) and syms/data_dump.toml (data symbols). Paths are relative to this
+# file. The entry point is the preamble (ROM 0x1000), which N64Recomp names recomp_entrypoint.
+[input]
+entrypoint = 0x80001000
+elf_path = "../build/relink/stage1.elf"
+output_func_path = "../build/RecompiledFuncs"

@@ -1,0 +1,55 @@
+--- a/ld/pd.ld
++++ b/ld/pd.ld
+@@ -1,3 +1,16 @@
++/* tools/relink.ld.patch (perfect-dark-recomp): a TLB-free link. lib, inflate and game are linked where they sit in
++ * physical memory instead of at their TLB-mapped addresses; the bases are macros so tools/build_decomp.sh can link a
++ * second time at other bases for the relocation list. */
++#ifndef RELINK_LIB
++#define RELINK_LIB 0x80001050
++#endif
++#ifndef RELINK_INFLATE
++#define RELINK_INFLATE 0x80200000
++#endif
++#ifndef RELINK_GAME
++#define RELINK_GAME 0x80220000
++#endif
++
+ #define VERSION_NTSC_BETA  0
+ #define VERSION_NTSC_1_0   1
+ #define VERSION_NTSC_FINAL 2
+@@ -149,7 +162,7 @@
+ 	 * due to it not being TLB mapped yet. So we set up this variable to allow
+ 	 * this to happen.
+ 	 */
+-	vm_boot_from_preamble = vm_boot + 0x10000000;
++	vm_boot_from_preamble = vm_boot;
+ 
+ 	/***************************************************************************
+ 	 * lib
+@@ -164,7 +177,7 @@
+ 	PLACEHOLDER_SEGMENT(libzip, ROMALLOCATION_LIB)
+ 
+ 	__rompos = ROM_SIZE * 1024 * 1024;
+-	__rampos = 0x70001050;
++	__rampos = RELINK_LIB;
+ 
+ 	BEGIN_SEG(lib) SUBALIGN(0x10)
+ 	{
+@@ -232,7 +245,7 @@
+ 	 */
+ 
+ 	__savedrompos = __rompos;
+-	__rampos = 0x70200000;
++	__rampos = RELINK_INFLATE;
+ 	__rompos = _datazipSegmentRomEnd;
+ 
+ 	BEGIN_SEG(inflate)
+@@ -256,7 +269,7 @@
+ 	PLACEHOLDER_SEGMENT(gamezip, ROMALLOCATION_GAME)
+ 
+ 	__rompos = __savedrompos;
+-	__rampos = 0x7f000000;
++	__rampos = RELINK_GAME;
+ 
+ 	BEGIN_SEG(game)
+ 	{
