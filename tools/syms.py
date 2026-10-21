@@ -14,6 +14,7 @@ through, and every IDO size that disagrees with the distance to the next functio
 The entry point is the preamble (ROM 0x1000, linked at 0x80001000 by tools/relink.ld.patch), which N64Recomp names
 recomp_entrypoint.
 """
+import re
 import struct
 import sys
 from pathlib import Path
@@ -60,53 +61,123 @@ def is_jump(insn):
 
 
 def returns(data, sections, sec, start, end):
-    """Whether the code from start to end ends in a jump and its delay slot, past any nops padding it out."""
+    """Whether the code from start to end ends in a jump (or a call that never returns, as __osCleanupThread's to
+    osDestroyThread) and its delay slot, past any nops padding it out."""
     last = end - 4
     while last > start and word(data, sections, sec, last) == 0:
         last -= 4
-    return any(is_jump(word(data, sections, sec, a)) for a in (last, last - 4) if a >= start)
+    return any(is_jump(w) or w >> 26 == 3 for w in (word(data, sections, sec, a) for a in (last, last - 4) if a >= start))
 
 
-def main(elf_path, map_path, out_path):
+def objects(map_path):
+    """(start, end, object name) of each input .text section, from the map."""
+    out = []
+    pending = None
+    with open(map_path) as f:
+        for line in f:
+            if pending and re.match(r"^\s+0x[0-9a-f]+\s+0x[0-9a-f]+\s+\S", line):
+                line = " .text" + line
+            pending = re.match(r"^ \.text\s*$", line)
+            m = re.match(r"^ \.text\s+0x([0-9a-f]+)\s+0x([0-9a-f]+)\s+(\S+)", line)
+            if m and int(m.group(2), 16):
+                start = int(m.group(1), 16)
+                out.append((start, start + int(m.group(2), 16), Path(m.group(3)).stem))
+    return sorted(out)
+
+
+def main(elf_path, map_path, relocs_path, out_path):
     data, sections, syms = elf(elf_path)
     ends = text_ends(map_path)
     text = {s: (sections[s][0], ends.get(s, sections[s][0] + sections[s][2])) for s in CODE}
-    STT_NOTYPE, STT_FUNC, STB_GLOBAL = 0, 2, 1
-    funcs = {}
-    for name, value, size, bind, typ, sec in syms:
-        if sec not in text or not text[sec][0] <= value < text[sec][1]:
-            continue
-        if typ == STT_FUNC or (typ == STT_NOTYPE and bind == STB_GLOBAL):
-            funcs.setdefault((sec, value), []).append((name, size, typ, bind))
-    names_seen = {}
-    for name, *_ in syms:
-        names_seen[name] = names_seen.get(name, 0) + 1
 
-    sizes = []
+    def code_section(addr):
+        return next((s for s, (lo, hi) in text.items() if lo <= addr < hi), None)
+
+    STT_NOTYPE, STT_FUNC, STB_GLOBAL = 0, 2, 1
+    named = {}  # addr -> (name, ELF size or 0)
+    names_seen = {}
+    for name, value, size, bind, typ, sec in syms:
+        names_seen[name] = names_seen.get(name, 0) + 1
+        if code_section(value) == sec and (typ == STT_FUNC or (typ == STT_NOTYPE and bind == STB_GLOBAL)):
+            if value not in named or (size and not named[value][1]):
+                named[value] = (name, size if typ == STT_FUNC else 0)
+
+    # Where code goes that no symbol names: jal targets, and pointers to code built with lui/addiu or held in .data.
     report = []
-    by_sec = {}
-    for sec, value in funcs:
-        by_sec.setdefault(sec, []).append(value)
-    for sec, addrs in by_sec.items():
-        addrs.sort()
-        bounds = addrs[1:] + [text[sec][1]]
-        for i, (addr, nxt) in enumerate(zip(addrs, bounds)):
-            entries = funcs[(sec, addr)]
-            name, size, typ, bind = entries[0]
-            gap = nxt - addr
-            if typ == STT_FUNC and size:
-                if size > gap or size < gap - 0x10:
-                    report.append(f"  {name} {addr:#010x}: IDO size {size:#x}, next function {gap:#x} on")
-                continue
-            # Sized here: to the next function, and on through every function it falls into.
-            end, j = nxt, i
-            while end < text[sec][1] and not returns(data, sections, sec, addr, end):
-                report.append(f"  {name} {addr:#010x} falls through into {funcs[(sec, end)][0][0]}")
-                j += 1
-                end = bounds[j]
-            if names_seen[name] > 1:
-                report.append(f"  {name} {addr:#010x}: the name is not unique, so it can't be sized by name")
-                continue
+    targets = {}
+    for sec, (lo, hi) in text.items():
+        for pc in range(lo, hi, 4):
+            w = word(data, sections, sec, pc)
+            if w >> 26 == 3:
+                targets.setdefault(((pc & 0xF0000000) | (w & 0x3FFFFFF) << 2), "jal")
+            elif w >> 26 == 0xF:  # lui
+                rt, hi16 = (w >> 16) & 0x1F, w & 0xFFFF
+                for pc2 in range(pc + 4, min(pc + 0x40, hi), 4):
+                    w2 = word(data, sections, sec, pc2)
+                    if w2 >> 26 == 9 and (w2 >> 21) & 0x1F == rt:  # addiu rX, rt
+                        addr = ((hi16 << 16) + (w2 & 0xFFFF) - (0x10000 if w2 & 0x8000 else 0)) & 0xFFFFFFFF
+                        if code_section(addr):
+                            targets.setdefault(addr, "lui/addiu")
+                        break
+    for line in Path(relocs_path).read_text().splitlines():
+        if line.startswith("data "):
+            off = int(line.split()[1], 16)
+            v = word(data, sections, ".data", sections[".data"][0] + off)
+            if code_section(v):
+                targets.setdefault(v, ".data pointer")
+
+    # Each named function covers its ELF size; code past that, up to the next named function, is split at the targets.
+    starts = dict((a, n) for a, n in named.items())
+    order = sorted(starts)
+    objs = objects(map_path)
+    covered = []
+    for i, addr in enumerate(order):
+        name, size = starts[addr]
+        if size:
+            covered.append((addr, addr + size))
+    covered.sort()
+    unnamed = []
+    for addr, kind in sorted(targets.items()):
+        if addr in starts:
+            continue
+        inside = next(((lo, hi) for lo, hi in covered if lo < addr < hi), None)
+        if inside:
+            report.append(f"  {kind} target {addr:#010x} is inside {starts[inside[0]][0]}: not split")
+            continue
+        unnamed.append(addr)
+    # The first word of code after a named function's ELF size, past nops, starts code too.
+    for lo, hi in covered:
+        sec = code_section(lo)
+        a = hi
+        while a < text[sec][1] and a not in starts and word(data, sections, sec, a) == 0:
+            a += 4
+        if a < text[sec][1] and a not in starts and a not in unnamed:
+            unnamed.append(a)
+    for addr in unnamed:
+        obj = next((o for lo, hi, o in objs if lo <= addr < hi), "code")
+        starts[addr] = (f"{re.sub(r'[^A-Za-z0-9_]', '_', obj)}_{addr:08X}", 0)
+
+    sizes, manual = [], []
+    order = sorted(starts)
+    for i, addr in enumerate(order):
+        name, size = starts[addr]
+        sec = code_section(addr)
+        bound = lambda j: order[j] if j < len(order) and order[j] < text[sec][1] else text[sec][1]
+        nxt = bound(i + 1)
+        if size:
+            if size > nxt - addr:
+                report.append(f"  {name} {addr:#010x}: ELF size {size:#x} runs past the next function, {nxt - addr:#x} on")
+            continue
+        end, j = nxt, i + 1
+        while end < text[sec][1] and not returns(data, sections, sec, addr, end):
+            report.append(f"  {name} {addr:#010x} falls through into {starts[end][0]}")
+            j += 1
+            end = bound(j)
+        if addr in unnamed:
+            manual.append((name, sec, addr, end - addr))
+        elif names_seen[name] > 1:
+            report.append(f"  {name} {addr:#010x}: the name is not unique, so it can't be sized by name")
+        else:
             sizes.append((name, end - addr))
 
     with open(out_path, "w", newline="\n") as f:
@@ -117,8 +188,11 @@ def main(elf_path, map_path, out_path):
         f.write("function_sizes = [\n")
         for name, size in sorted(sizes):
             f.write(f'    {{ name = "{name}", size = {size:#x} }},\n')
+        f.write("]\nmanual_funcs = [\n")
+        for name, sec, addr, size in manual:
+            f.write(f'    {{ name = "{name}", section = "{sec}", vram = {addr:#010x}, size = {size:#x} }},\n')
         f.write("]\n")
-    print(f"{out_path}: {len(sizes)} functions sized here")
+    print(f"{out_path}: {len(sizes)} named functions sized here, {len(manual)} unnamed ones (IDO's statics) found")
     print("\n".join(report))
 
 
