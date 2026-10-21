@@ -37,7 +37,7 @@ vram = 0x80001000
 size = 0x50
 
 symbols = [
-    { name = "preamble", vram = 0x80001000 },
+    { name = "_preambleSegmentStart", vram = 0x80001000 },
     { name = ".bss_loop_00001010", vram = 0x80001010 },
     { name = "_preambleSegmentEnd", vram = 0x80001050 },
 ]
@@ -59,7 +59,7 @@ vram = 0x80001050
 size = 0x58F90
 
 symbols = [
-    { name = "vm_boot", vram = 0x80001050 },
+    { name = "_libSegmentStart", vram = 0x80001050 },
     { name = "vm_boot_from_preamble", vram = 0x80001050 },
     { name = ".fill_loop_02000100", vram = 0x80001150 },
     { name = ".after_remainder_02000128", vram = 0x80001178 },
