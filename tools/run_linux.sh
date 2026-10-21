@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Runs the program tools/build_linux.sh built where there is no display: in its image, on Xvfb, with Mesa's lavapipe
-# (Vulkan on the CPU) and no sound device, from the checkout (assets/ and recompcontrollerdb.txt are read from there). It stores the ROM (--rom), starts the game (--boot) and writes a screenshot
+# (Vulkan on the CPU) and no sound device, from the checkout (assets/ and recompcontrollerdb.txt are read from there).
+# It stores the ROM (--rom), starts the game (--boot) and writes a screenshot
 # every few seconds to build/shots/, the log to build/run.log. The program's data goes to build/home.
 #
 #     tools/run_linux.sh path/to/pd.z64 [seconds, 60] [seconds between shots, 5]

@@ -479,7 +479,8 @@ int main(int argc, char** argv) {
         .message_box = recompui::message_box,
     };
 
-    recomp::Configuration cfg;
+    // Value-initialized: the runtime calls create_window only while cfg.window_handle is empty.
+    recomp::Configuration cfg{};
     cfg.project_version = project_version;
     cfg.rsp_callbacks = rsp_callbacks;
     cfg.renderer_callbacks = renderer_callbacks;
