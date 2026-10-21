@@ -1,6 +1,7 @@
 # Builds patches.elf, the game functions patches/ replaces, for MIPS with clang and ld.lld (CMakeLists.txt runs it;
 # N64Recomp then recompiles it with patches.toml). The headers are the decompilation's (lib/perfect_dark), as
-# ntsc-final (VERSION 2).
+# ntsc-final (VERSION 2), and the ones its build generates from the extracted ROM (src/generated/ntsc-final, from
+# tools/build_decomp.sh), so patches/ builds only where the ROM is.
 TARGET = patches.elf
 
 CC      ?= clang
@@ -15,7 +16,8 @@ CFLAGS   := -target mips -mips2 -mabi=32 -O2 -G0 -mno-abicalls -mno-odd-spreg -m
 			-Wno-unsupported-floating-point-opt -Wno-switch -fno-strict-aliasing
 
 CPPFLAGS := -nostdinc -D_LANGUAGE_C -D_MIPS_SZLONG=32 -D_MIPS_SZINT=32 -DVERSION=2 -DPAL=0 -DMATCHING=0 \
-			-DPIRACYCHECKS=0 -DROM_SIZE=32 -I $(DECOMP)/include -I $(DECOMP)/include/PR -I $(DECOMP)/src/include
+			-DPIRACYCHECKS=0 -DROM_SIZE=32 -I $(DECOMP)/include -I $(DECOMP)/include/PR -I $(DECOMP)/src/include \
+			-I $(DECOMP)/src/generated/ntsc-final
 
 LDFLAGS  := -nostdlib -T patches.ld -T syms.ld -Map patches.map --unresolved-symbols=ignore-all --emit-relocs
 

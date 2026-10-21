@@ -119,8 +119,9 @@ target_sources(RecompiledFuncs PRIVATE ${FUNC_C_SOURCES} ${FUNC_CXX_SOURCES})
 
 # PatchesLib: the game functions patches/ replaces (its boot without the TLB, patches/boot.c), compiled for MIPS by
 # patches/Makefile and recompiled by N64Recomp (patches.toml; the runtime's own N64Recomp, target N64RecompCLI).
-# Needs a clang with a MIPS backend and ld.lld (PATCHES_C_COMPILER, PATCHES_LD). PD_PATCHES=OFF is for CI's Windows
-# job only, which has no MIPS clang and stops before linking: without the library the game doesn't boot.
+# Needs a clang with a MIPS backend and ld.lld (PATCHES_C_COMPILER, PATCHES_LD), and the headers the decompilation's build
+# generates from the extracted ROM (patches/Makefile). PD_PATCHES=OFF is for CI only, which has no ROM and stops
+# before linking: without the library the game doesn't boot.
 option(PD_PATCHES "Build patches/ (the game needs it)" ON)
 set(PATCHES_C_COMPILER clang CACHE STRING "clang with a MIPS backend, for patches/")
 set(PATCHES_LD ld.lld CACHE STRING "ld.lld, for patches/")

@@ -90,7 +90,7 @@ jobs:
             build
           key: ${{ steps.key.outputs.key }}
           restore-keys: ${{ steps.key.outputs.prefix }}
-      # Not the decompilation (lib/perfect_dark): only patches/ includes it, which this job doesn't build. In parallel,
+      # Not the decompilation (lib/perfect_dark): only patches/ includes it, which CI doesn't build. In parallel,
       # retried, and cleaned, as a cache restored by prefix may hold files an older patch created.
       - name: Submodules
         if: steps.cache.outputs.cache-hit != 'true'
@@ -115,8 +115,8 @@ jobs:
         run: |
           mkdir -p RecompiledFuncs
           echo "// CI placeholder: generated from the ROM on a real build" > RecompiledFuncs/ci_placeholder.c
-      # No MSVC developer environment: clang-cl finds MSVC and the Windows SDK by itself. No MIPS clang here (the
-      # llvm.org build has no MIPS backend), so no patches library: build-linux builds it. The configure applies
+      # No MSVC developer environment: clang-cl finds MSVC and the Windows SDK by itself. No patches library: it
+      # includes headers the decompilation generates from the ROM (patches/Makefile). The configure applies
       # N64Recomp-browser's patches.
       - name: Configure
         run: |
@@ -154,8 +154,7 @@ jobs:
         if: always() && steps.sccache.outcome == 'success'
         run: sccache --show-stats
 
-  # The same on Linux with clang, and the patches library too: patches/ with a MIPS clang and the decompilation's
-  # headers, recompiled by N64Recomp.
+  # The same on Linux with clang.
   build-linux:
     runs-on: ubuntu-24.04
     timeout-minutes: 90
@@ -180,7 +179,6 @@ jobs:
             lib/N64Recomp-browser
             lib/RecompFrontend
             lib/rt64
-            lib/perfect_dark
             build
           key: ${{ steps.key.outputs.key }}
           restore-keys: ${{ steps.key.outputs.prefix }}
@@ -188,7 +186,8 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           for i in 1 2 3; do
-            git -c protocol.version=2 submodule update --init --recursive --force --depth 1 --jobs 8 &&
+            git -c protocol.version=2 submodule update --init --recursive --force --depth 1 --jobs 8 \
+                lib/N64ModernRuntime lib/N64Recomp-browser lib/RecompFrontend lib/rt64 &&
               git submodule foreach --recursive -q git clean -fdq && exit 0
             echo "attempt $i failed"; sleep $((i * 15))
           done
@@ -212,7 +211,8 @@ jobs:
           clang --version
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
-            -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+            -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache \
+            -DPD_PATCHES=OFF
       - name: Start sccache
         run: |
           for i in 1 2 3; do
@@ -223,13 +223,13 @@ jobs:
           exit 1
       - name: Build runtime, renderer and frontend libraries
         run: ninja -C build librecomp ultramodern rt64 recompui recompinput nfd
-      - name: Compile the game's own sources and the patches library
+      - name: Compile the game's own sources
         run: |
           objs=$(ninja -C build -t targets all |
             grep -oE '^CMakeFiles/PerfectDarkRecompiled\.dir/[^:]+\.o' | grep -v register_overlays)
           [ -n "$objs" ] || { echo "no object targets found"; exit 1; }
           echo "$objs"
-          ninja -C build $objs PatchesLib
+          ninja -C build $objs
       - name: sccache stats
         if: always() && steps.sccache.outcome == 'success'
         run: sccache --show-stats
