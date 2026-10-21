@@ -60,7 +60,7 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$ROOT:/src" -w /src/lib/perfect_dark 
     python3 -I /src/tools/relocs.py scan /src/build/relink/stage1.elf /src/build/relink/pd.map > /src/build/relink/scan.txt
 
     cd /src/build
-    python3 -I /src/tools/syms.py relink/stage1.elf relink/pd.map dump_syms.toml
+    python3 -I /src/tools/syms.py relink/stage1.elf relink/pd.map /src/syms/relocs.txt dump_syms.toml
     N64Recomp dump_syms.toml --dump-context
     mv dump.toml data_dump.toml /src/syms/
 "
