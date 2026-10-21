@@ -6,7 +6,8 @@
 #     against the ROM's.
 #  2. The relink (tools/relink.ld.patch on the decomp's ld/pd.ld): the same objects linked with lib, inflate and game
 #     where they sit in physical memory, into build/relink/stage1.elf, and again at other bases into
-#     build/relink-b/stage1.elf.
+#     build/relink-b/stage1.elf; and build/relink/stage1.bin, the relink as a flat image, where each section sits at
+#     its load address, which is the rom address syms/dump.toml gives it (us.toml recompiles from it).
 #  3. syms/relocs.txt from the two (tools/relocs.py make), then the local check that the ROM plus that list is the
 #     relink outside .text (tools/relocs.py check), and build/relink/scan.txt (tools/relocs.py scan).
 #  4. syms/dump.toml and syms/data_dump.toml: N64Recomp --dump-context on the relink, with the config tools/syms.py

@@ -15,3 +15,12 @@ rom_file_path = "build/relink/stage1.bin"
 recomp_include = "#include \"recomp.h\""
 
 [patches]
+# The decompilation's virtual memory (src/lib/vm.s, vminit.c): the TLB, which the relink leaves out. vm_boot is
+# patched (patches/boot.c) and nothing calls the rest; a stub keeps each where its address is looked up.
+stubs = [
+    "vm_boot",
+    "vm_init_vars",
+    "vm_handle_miss",
+    "vm_unmap_range",
+    "handle_fault",
+]

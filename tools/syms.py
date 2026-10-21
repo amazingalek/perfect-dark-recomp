@@ -105,9 +105,11 @@ def main(elf_path, map_path, relocs_path, out_path):
     STT_NOTYPE, STT_OBJECT, STT_FUNC, STB_GLOBAL = 0, 1, 2, 1
     named = {}  # addr -> (name, ELF size or 0)
     names_seen = {}
-    # A linker label (_libSegmentStart) gives way to the function at its address (vm_boot), which patches/ names.
+    # A linker label (_libSegmentStart) gives way to the function at its address (vm_boot), which patches/ names, and
+    # libgcc's name for one of libultra's IDO math routines (__fixsfdi) to IDO's (__f_to_ll), which N64Recomp
+    # reimplements: they use 64-bit instructions it doesn't recompile.
     def label(n):
-        return re.fullmatch(r"_\w+Segment\w*", n) is not None
+        return re.fullmatch(r"_\w+Segment\w*|__fix\w*di|__float\w*di\w*", n) is not None
 
     for name, value, size, bind, typ, sec in syms:
         names_seen[name] = names_seen.get(name, 0) + 1
