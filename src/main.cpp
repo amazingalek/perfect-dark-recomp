@@ -222,11 +222,13 @@ void queue_samples(int16_t* audio_data, size_t sample_count) {
     uint32_t num_bytes_to_queue = audio_convert.len_cvt - output_channels * discarded_output_frames * sizeof(swap_buffer[0]);
     float* samples_to_queue = swap_buffer.data() + output_channels * discarded_output_frames / 2;
 
-    // With more than 100 ms queued (the window was dragged, the tab was hidden), drop samples to catch up.
+    // With more than 100 ms queued (the window was dragged, the tab was hidden), drop samples to catch up, whole frames
+    // only: a part of one would put every sample queued after it out of step, read as noise.
     uint32_t skip_factor = cur_queued_microseconds / 100000;
     if (skip_factor != 0) {
         uint32_t skip_ratio = 1 << skip_factor;
-        num_bytes_to_queue /= skip_ratio;
+        uint32_t output_frame_bytes = output_channels * sizeof(swap_buffer[0]);
+        num_bytes_to_queue = num_bytes_to_queue / skip_ratio / output_frame_bytes * output_frame_bytes;
         for (size_t i = 0; i < num_bytes_to_queue / (output_channels * sizeof(swap_buffer[0])); i++) {
             samples_to_queue[2 * i + 0] = samples_to_queue[2 * skip_ratio * i + 0];
             samples_to_queue[2 * i + 1] = samples_to_queue[2 * skip_ratio * i + 1];
