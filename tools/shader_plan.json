@@ -17,7 +17,10 @@
   "reloading. Not recorded: the menus behind an agent file (the Perfect Menu, mission select, the briefing, the",
   "end screen), Combat Simulator, the Carrington Institute, and what a mission draws further in than its start (RT64",
   "builds those when the game first asks for them). Flags follow settings (filtering, HDR, MSAA, upscaling), so a",
-  "change to one of those defaults means recording again."
+  "change to one of those defaults means recording again.",
+  "Added by hand at the end of their level's section: the shaders the page's play plans then missed in Chrome",
+  "(Defection 6, Villa 3), drawn by what a level's start doesn't show. A new recording drops them unless they are added",
+  "again."
  ],
  "load": [
   [
