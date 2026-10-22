@@ -16,8 +16,8 @@
 # builds those when the game first asks for them). Flags follow settings (filtering, HDR, MSAA, upscaling), so a
 # change to one of those defaults means recording again.
 # Added by hand at the end of their section: the shaders the page's play plans then missed (the boot 1,
-# Defection 15, 9 of them as it starts in Firefox alone; Villa 3), and those a survey of a minute in each solo mission
-# then missed (19 in seven: Villa 1, G5 Building 5, Crash Site 3, Rescue 3, Defense 5, Skedar Ruins 1, Maian SOS 1).
+# Defection 15, 9 of them as it starts in Firefox alone; Villa 3), and those plays of a minute in each solo mission
+# then missed (20 in seven: Villa 2, G5 Building 5, Crash Site 3, Rescue 3, Defense 5, Skedar Ruins 1, Maian SOS 1).
 # A new recording drops them unless they are added again.
 00504240 0080eccf fcff97ff ff2dfeff 04cb540b
 00504240 0089ec4f fcffffff fffdf6fb 1cc9540b
@@ -389,6 +389,7 @@ c4112078 0098ac6f fc159804 5ffedbf8 08035408
 c4112078 0098ac6f fc159804 5ffedbf8 0803550c
 c4112078 0098ac0f fc159804 5ffedbf8 0803100c
 c4112078 0098ac2f fc159804 5ffedbf8 0803100c
+00504340 00812ccf fcffffff fffdf6fb 1800018b
 section chicago
 00552048 00882c0f fc40fe81 55fef97c 088a0008
 c4112078 00992c0f fc26a004 1f1093fb 188e000c
