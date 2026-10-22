@@ -72,7 +72,10 @@ display list, is the light's own. On the page render to RAM's copy into RDRAM la
 before it, and a glare flickered as Joanna walked towards its light or away. `patches/artifacts.c` reads them a list
 later on the page, in a fourth list (its header says how). A probe that read each sample the scheduler had taken
 again a list later, in Defection's first 50 s by the regular plan's moves in Chrome: on the page from Pages 16173 of
-20070 had changed since, with the patch 0 of 16395. The desktop build keeps the game's three lists.
+20070 had changed since, with the patch 0 of 16395. A level's reset clears the four lists' flags of whether their
+samples were taken, without which a list written again without the gun (G5 Building's opening cutscene) had its
+screen positions read as pointers and the page trapped. The route from the file menu through G5 Building, Air Base,
+Crash Site, Defense and Skedar Ruins plays in Chrome and Firefox. The desktop build keeps the game's three lists.
 
 ## The shader list
 
