@@ -10,7 +10,7 @@ A port of the N64 version of *Perfect Dark* (USA, revision 1) to PC and to the w
 it. Its symbols come from the [Perfect Dark decompilation](https://github.com/n64decomp/perfect_dark) (MIT), pinned
 at `lib/perfect_dark`. It is not an emulator and it contains no game data: you supply your own ROM.
 
-**Status: the desktop build plays a mission.** On Linux, with a desktop GPU,
+**Status: the desktop build plays a mission.** With a desktop GPU,
 *dataDyne Central - Defection* plays from its briefing to its end screen on Agent, with sound. The game's menus work:
 the agent file, the Perfect Menu, mission select, the briefing, retry and next mission. A save survives a restart: the
 agent file, the completed mission and the next one it unlocks. The game draws 59-60 frames a second in its levels,
