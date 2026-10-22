@@ -16,8 +16,9 @@
 # builds those when the game first asks for them). Flags follow settings (filtering, HDR, MSAA, upscaling), so a
 # change to one of those defaults means recording again.
 # Added by hand at the end of their section: the shaders the page's play plans then missed (the boot 1,
-# Defection 15, 9 of them as it starts in Firefox alone; Villa 3). A new recording drops them unless they are added
-# again.
+# Defection 15, 9 of them as it starts in Firefox alone; Villa 3), and those plays of a minute in each solo mission
+# then missed (20 in seven: Villa 2, G5 Building 5, Crash Site 3, Rescue 3, Defense 5, Skedar Ruins 1, Maian SOS 1).
+# A new recording drops them unless they are added again.
 00504240 0080eccf fcff97ff ff2dfeff 04cb540b
 00504240 0089ec4f fcffffff fffdf6fb 1cc9540b
 00552048 00800c4f fcffffff fffcf279 0003540b
@@ -387,6 +388,8 @@ c41049d8 00992cff fc26a004 1f1093ff 1806008c
 c4112078 0098ac6f fc159804 5ffedbf8 08035408
 c4112078 0098ac6f fc159804 5ffedbf8 0803550c
 c4112078 0098ac0f fc159804 5ffedbf8 0803100c
+c4112078 0098ac2f fc159804 5ffedbf8 0803100c
+00504340 00812ccf fcffffff fffdf6fb 1800018b
 section chicago
 00552048 00882c0f fc40fe81 55fef97c 088a0008
 c4112078 00992c0f fc26a004 1f1093fb 188e000c
@@ -567,6 +570,11 @@ c41049d8 0099ac7f fc159a04 5ffefff8 188a0008
 00504340 0081eccf fcffffff fffdf6fb 1cc9540b
 004049d8 00882cff fcff99ff ff327f3f 0ccb540c
 c4112078 0099acff fc26a004 1f1093ff 1807540c
+0c182078 0099ac4f fc26a004 1f1093ff 1c46cc0c
+0c182078 009bac4f fc26a004 1f1093ff 1807100c
+c4104dd8 0098ac4f fc26a004 1f1093fb 099f100c
+c4112078 0098ac4f fc26a004 1f1093fb 099f100c
+c4112078 0099ac4f fc26a004 1f1093fb 18071008
 section infiltration
 00504340 00802ccf fcffffff fffdf6fb 0800000b
 0f0a4000 00992c4f fc26a004 1ffc93fc 1807540c
@@ -684,6 +692,9 @@ c41049d8 00992cff fc26a004 1f1093ff 1806008c
 004049d8 00882ccf fcff99ff ff327f3f 0ccb540c
 0c184b50 00992ccf fc26a004 1f1093ff 18060088
 c4104b50 00982c0f fc1219ff fffffe38 0ccb5408
+0c184dd8 0099ac4f fc26a004 1f1093ff 1806008c
+c41049d8 00992c4f fc26a004 1f1093fb 18060088
+c4104b50 00982c4f fc1219ff fffffe38 0ccb5408
 section escape
 00504340 00802ccf fcffffff fffdf6fb 0800000b
 0f0a4000 00992c4f fc26a004 1ffc93fc 1807540c
@@ -965,6 +976,9 @@ c4112d58 00992c2f fc26a004 1f1093fb 1916880c
 c81049d8 0099ac6f fc26a004 1f1493ff 188e000c
 004049d8 00882cef fcff99ff ff327f3f 0ccb540c
 c4112078 0099acff fc26a004 1f1093ff 1807540c
+c4112078 00992c6f fc26a004 1f1093fb 1916880c
+c4112d58 00992c6f fc26a004 1f1093fb 1916880c
+c8102078 00992c6f fc26a004 1ffc93fd 1ccf540c
 section pelagic
 0f0a4000 00882c0f fcffffff fffe793c 08000008
 00552048 00882c0f fc40fe81 55fef97c 088a0008
@@ -1201,6 +1215,11 @@ c4112078 0099ac4f fc159804 5ffedbf8 1bba440c
 00502078 00882c4f fc127e24 fffff9fc 0803540c
 00504b50 00882c4f fc121824 ff33ffff 0ccb540c
 00502078 0088ac0f fc121824 ff33ffff 0b33320c
+00502078 0088ac4f fc121824 ff33ffff 0b33320c
+0c182078 009dac4f fc26e404 1f10ffff 188e000c
+c4112078 0098ac4f fc159804 5ffedbf8 099b100c
+c4112078 0098ac4f fc26a004 1f1093fb 0aaeaa0c
+c4112078 0098ac4f fc26a004 1f1093fb 0b37320c
 section attackship
 00504340 00802ccf fcffffff fffdf6fb 0800000b
 00502048 0088ac4f fc121a24 ff37ffff 0803540c
@@ -1331,6 +1350,7 @@ c41049d8 0099acff fc159a04 5ffefff8 188a000c
 0c184dd8 00992c7f fc26a004 1f1093ff 1807540c
 004049d8 00882cff fcff99ff ff327f3f 0ccb540c
 00504b50 00882cbf fc121824 ff33ffff 088a0008
+c4112078 0099ac4f fc159804 5ffedbf8 18020088
 section mbr
 00502048 00882c0f fc127e24 fffff9fc 0803540c
 c4112078 0099ac0f fc159804 5ffedbf8 18035408
@@ -1441,6 +1461,7 @@ c4112078 0099acff fc26a004 1f1093ff 1ccf5408
 0c184b50 00992ccf fc26a004 1f1093ff 18060088
 004049d8 00882ccf fcff99ff ff327f3f 0ccb5408
 004049d8 00882ccf fcff99ff ff327f3f 0ccb540c
+c4112078 0098ac0f fc26a004 1f1093fb 0807540c
 section war
 0f0a4000 0099ac0f fc26a004 1f1093ff 1ccf540c
 0c182078 0099ac0f fc26a004 1f1093ff 199f100c
