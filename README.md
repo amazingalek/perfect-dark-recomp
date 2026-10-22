@@ -29,6 +29,11 @@ Still wrong or not yet checked:
   not compared with a console's.
 - No Windows build has been linked and run, the launcher has only been skipped (`--boot`), and rumble hasn't been
   felt on a pad.
+- The enhancements were played on the desktop build in Defection at 1280x720, each on and off: the level drawn
+  to the window's edges, the ammo at its side, the mouse turning, tilting, aiming and changing weapon, and Field of
+  View. Not yet looked at with Expand: the HUD's messages and the mission timer at the left edge, the radar, the
+  fades and the cutscene bars. On the page the mouse hasn't been played: the plays are headless, and headless
+  Chrome refuses the pointer lock.
 
 **The web page is built and played locally, not published** ([docs/web.md](docs/web.md)). In Chrome and Firefox it
 boots with no WebGPU errors, builds its shaders from a prebuilt list with a section a mission, and plays Defection,
