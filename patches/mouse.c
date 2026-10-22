@@ -11,9 +11,12 @@
 //    its crosshair instead of walking and turning her, and C-left and C-right (A and D) lean instead of strafing. So
 //    bmove_process_input doesn't see L and R (the player's joybutinhibit, as the game holds back a button still held
 //    from a menu), and what aiming wants is put back where the game decides it: the crosshair (after the game hides
-//    it), the weapon's zoom (player_tween_fov_y), no auto-aim (bmove_is_autoaim_*_enabled_for_current_weapon), and
-//    aiming to the rest of the game (bmove_is_in_sight_aim_mode: the tracking weapons' targets). A pad's L and R are
-//    still the game's aim mode, and so are the keys with the mouse off. The Aim Control option's Toggle holds it.
+//    it), the weapon's zoom (player_tween_fov_y), and aiming to the rest of the game (bmove_is_in_sight_aim_mode: the
+//    tracking weapons' targets). A pad's L and R are still the game's aim mode, and so are the keys with the mouse off.
+//    The Aim Control option's Toggle holds it.
+//  - No auto-aim, aiming or not, as a PC shooter's mouse aims (bmove_is_autoaim_*_enabled_for_current_weapon): the
+//    game's Auto-Aim option, on by default, would pull the crosshair onto a target the mouse isn't pointing at as she
+//    fires from the hip. With the mouse off, a pad and the keys keep the option.
 //  - The wheel changes weapon, where and when the game's own buttons would (bmove_process_input), and while the mouse
 //    aims zooms the weapons that zoom (the sniper rifle, the FarSight, the horizon scanner), as C-up and C-down do in
 //    aim mode.
@@ -110,8 +113,8 @@ RECOMP_PATCH bool bmove_is_autoaim_y_enabled_for_current_weapon(void)
 {
 	struct funcdef *func = gset_get_current_funcdef(0);
 
-	// @recomp: no auto-aim while the mouse aims, as in aim mode.
-	if (mouse_aiming()) {
+	// @recomp: no auto-aim while the mouse plays, aiming or not.
+	if (mouse_plays_for_current_player()) {
 		return false;
 	}
 
@@ -132,8 +135,8 @@ RECOMP_PATCH bool bmove_is_autoaim_x_enabled_for_current_weapon(void)
 {
 	struct funcdef *func = gset_get_current_funcdef(0);
 
-	// @recomp: no auto-aim while the mouse aims, as in aim mode.
-	if (mouse_aiming()) {
+	// @recomp: no auto-aim while the mouse plays, aiming or not.
+	if (mouse_plays_for_current_player()) {
 		return false;
 	}
 
