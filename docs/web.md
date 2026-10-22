@@ -54,12 +54,12 @@ then *Villa* and *Chicago*. Play them with N64Recomp-browser's `tools/play_page.
 
 ## The shader list
 
-`src/rt64_shaders.txt` holds 647 shaders, which RT64 builds as 270 pipelines: 37 for the boot, then a section a solo
+`src/rt64_shaders.txt` holds 648 shaders, which RT64 builds as 270 pipelines: 38 for the boot, then a section a solo
 mission (21 sections of 29-125, a shader in the section of every mission that draws it). It was recorded in headless
 Chrome at 1256x645 by `tools/record_shaders.sh`, a page load a mission, about 25 minutes in all; its header says what
-each section played and what it leaves out. The plans' plays then missed 18 more, added by hand to Defection's and
-Villa's sections: 9 in Chrome, different ones each run, and 9 that Firefox draws each time Defection starts and Chrome
-never has. With them the regular plan misses none in either browser. Firefox waits about 3 s for the boot's section
+each section played and what it leaves out. The plans' plays then missed 19 more, added by hand at the end of the
+boot's, Defection's and Villa's sections: 10 in Chrome, different ones each run (the boot's as Defection loads, before
+its section starts), and 9 that Firefox draws each time Defection starts and Chrome never has. With them the regular plan misses none in either browser. Firefox waits about 3 s for the boot's section
 before the first frame and about 3 s for Defection's as it starts; Chrome builds the whole list behind the launcher in
 about 8 s.
 
@@ -83,6 +83,10 @@ every thread, in headless Chrome on a desktop GPU:
   `landRAMCopies`), so both graphics tasks are out at every VI. That cost is the shared support's, not the game's, and
   is N64Recomp-browser's to fix. The CPU wrote to no framebuffer with a late copy pending in the shader recording's
   21 levels or in the plays.
+- Beside GoldenEye's page from Pages, the regular plans played in turn uncapped, two of each, on an idle host: GoldenEye
+  358 and 347 presents a second, held by the uncapped rate (360), and Perfect Dark 340 and 329, with no WebGPU errors
+  and no short sound in either. A present is RT64's interpolated frame, so at 30 frames of the game a second in a level
+  Perfect Dark's page still presents near the rate its display allows.
 
 `frametime_calculate` (`src/game/timing.c`) spins on `osGetCount` with no call that lets another thread run, but the
 main loop's half-frame wait before a tick leaves it little to spin: in the logos 66 of 599 calls spun, 9.7 ms in 10 s
