@@ -38,7 +38,5 @@ f32 recomp_pd_widen_fov(f32 fovy);
 // Aspect Ratio (src/config.cpp): the window's width over its height with Expand, at least the one given; with Original
 // the one given.
 f32 recomp_pd_get_aspect_ratio(f32 original);
-// Whether render to RAM's copy into RDRAM lands a display list late (src/main.cpp): 1 on the page, 0 on the desktop.
-s32 recomp_pd_render_to_ram_late(void);
 
 #endif

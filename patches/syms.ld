@@ -10,4 +10,3 @@ recomp_pd_mouse_take_wheel = 0x8F000018;
 recomp_pd_widen_fov = 0x8F00001C;
 recomp_pd_get_aspect_ratio = 0x8F000020;
 recomp_pd_mouse_aim_held = 0x8F000024;
-recomp_pd_render_to_ram_late = 0x8F000028;
