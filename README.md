@@ -13,18 +13,15 @@ at `lib/perfect_dark`. It is not an emulator and it contains no game data: you s
 **Status: the desktop build plays a mission.** On Linux, with a desktop GPU (through Mesa's Dozen on WSL2),
 *dataDyne Central - Defection* plays from its briefing to its end screen on Agent, with sound. The game's menus work:
 the agent file, the Perfect Menu, mission select, the briefing, retry and next mission. A save survives a restart: the
-agent file, the completed mission and the next one it unlocks. The game draws 30 frames a second, every frame two VIs,
-with its clock at 1.00x real time, in its menus and in Defection's and Investigation's levels alike. RT64 interpolates
-to the display's rate (see [docs/building.md](docs/building.md) for the build and its findings).
+agent file, the completed mission and the next one it unlocks. The game draws 57-60 frames a second in its levels,
+every frame one VI, with its clock at real time, where its own controller reads held it to 30 (a patch puts off the
+tick that would restart them, [docs/web.md](docs/web.md), Frame rate). RT64 interpolates to the display's rate (see
+[docs/building.md](docs/building.md) for the build and its findings).
 
 Still wrong or not yet checked:
 
 - Once, after 22 minutes of play, the GPU device was lost (Dozen's D3D12 device removed, with an NVIDIA driver error
   in the same second). A later 17-minute play never lost it, so the cause, Dozen or the game's drawing, isn't known.
-- Every frame is two VIs, in the menus and the levels, on the desktop and the page alike, where 60 could be drawn: a
-  tick that finds no new controller sample restarts the controller polling, which takes two VIs, and the retraces
-  queued meanwhile start the next tick before the next sample, so it misses too (the game's own code,
-  [docs/web.md](docs/web.md), Frame rate). On a console the game draws at 15-30.
 - Speech (MP3): guards' lines start and play to their end in the game's MP3 player, but nobody has listened to them.
 - Clouds and water draw through a patch (the game draws them in a way RT64 doesn't), seen in Villa and Chicago but
   not compared with a console's.

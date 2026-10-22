@@ -77,12 +77,12 @@ about 8 s.
 ## Frame rate
 
 The game ticks at most once a retrace with at most two graphics tasks out, and counts each frame's length in VIs (the
-decompilation's `src/lib/main.c` and `src/game/timing.c`), so it draws up to 60 a second wherever it can. What it draws
-on the page, read from the scheduler (`g_Sched`, `g_MainNumGfxTasks`) a millisecond at a time and from Chrome traces of
-every thread, in headless Chrome on a desktop GPU unless a line says otherwise:
+decompilation's `src/lib/main.c` and `src/game/timing.c`), so it draws up to 60 a second wherever it can. Its own
+controller reads hold it to 30, which `patches/frame_rate.c` undoes. What it draws, read from `g_Vars` and the
+scheduler (`g_Sched`, `g_MainNumGfxTasks`) a few milliseconds at a time and from Chrome traces of every thread:
 
 - The boot's logos: 60, a tick every VI.
-- The title, the file menu and a level: 30, capped or not (the desktop build 30-38). This is the game's own code. PD's
+- The title, the file menu and a level, as the game is: 30, capped or not (the desktop build 29-55). PD's
   scheduler sends the main loop a retrace at every RDP done as well as at every VI (`__scHandleTasks`,
   `src/lib/sched.c`), and the main loop ticks at any retrace half a frame or more after the last tick started
   (`main_loop`, `src/lib/main.c`), so a tick can start between VIs. A tick that finds no controller sample newer than
@@ -91,14 +91,23 @@ every thread, in headless Chrome on a desktop GPU unless a line says otherwise:
   restarted has its sample only at the VI after. The retraces queued meanwhile start the next tick as soon as this one
   ends, before that VI, so it finds no sample either. Once a tick misses, the ticks after it miss too, for as long as
   a tick's work after its controller read is shorter than a VI, as it is on a fast CPU; on a console the game draws
-  at 15-30.
+  at 15-30. The runtime's controller polling has no part in it: `osContStartReadData` (N64ModernRuntime) posts its
+  message at once, so a poll started at one VI has its sample by the next, as on a console.
 - That chain, measured on the desktop build in Defection (patches that count ticks and the messages queued at each,
   and a switch flipped in memory, 20 s each way in turn, twice, on an idle host through Dozen): as the game is, 36-38
   frames a second, 411-451 of 710-753 ticks found no new sample, as many as took two VIs, and a tick started with
   1.1-1.3 retraces already queued. With a tick that finds no sample while a poll is out put off to the next retrace,
-  58-60, every frame one VI, no tick without a sample or with a retrace queued, the game's clock 0.97-1.00x real time.
-  The runtime's controller polling has no part in it: `osContStartReadData` (N64ModernRuntime) posts its message at
-  once, so a poll started at one VI has its sample by the next, as on a console.
+  58-60, every frame one VI, no tick without a sample or with a retrace queued.
+- So `patches/frame_rate.c` puts such a tick off to the next retrace, once (its header says why there and not by
+  draining the queued retraces). The desktop build with it, beside the build without it, each started and driven the
+  same way on an idle host through Dozen, 20 s a level reached through the survey: Defection 59.9 frames a second
+  (37.1 without), Investigation 59.6 (29.0), Chicago 56.9 (47.0), every frame one VI but 1-3 in 20 s; the file menu
+  54.4 and 41.0 in two runs (37.9), the next menu 60.0 (55.3). The game's clock (`lvframe240`) kept to `osGetCount`'s
+  in both. Frames a second here are counted by the script's clock, which `osGetCount` ran behind by up to 4% in some
+  windows, in either build: where it did, a frame was still one VI by the game's clock. The title's attract sequence
+  draws 60 in its scenes either way, with frames of 8-10 VIs as a scene changes in both. Walking and turning read the
+  keys as before. With polling stopped (a pak's menu) no poll is out, so the game restarts it as it always has: that is
+  from the code, as no pak's menu was played.
 - Render to RAM's late copy (`src/main.cpp`) is not what holds a level at 30: a page whose display lists go ahead with
   the previous copy still pending draws Defection at 29-31 like this one, capped and uncapped, and a Chrome trace of
   30 s there has RT64's Gfx thread idle 90% and the game's main thread all in `joy_debug_joy`, waiting in `osRecvMesg`
