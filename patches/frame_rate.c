@@ -18,7 +18,8 @@
 // just submitted, before the next VI, and miss its sample as well.
 //
 // main_tick is src/lib/main.c's, as the decompilation builds it for ntsc-final (no DEBUG), with those two commands put
-// at the start of the frame's display list, the survey's tick before it (patches/shader_survey.c) and the put-off tick.
+// at the start of the frame's display list with the matrix groups after them (patches/origin_interpolation.c), the
+// survey's tick before it (patches/shader_survey.c) and the put-off tick.
 
 #include "patches.h"
 #include "rt64_extended_gbi.h"
@@ -46,6 +47,7 @@ extern s32 g_MainChangeToStageNum;
 extern s32 g_StageNum;
 
 void shader_survey_tick(void);
+Gfx *origin_tag_frame(Gfx *gdl);
 
 // src/lib/joy.c's, which no header has.
 struct joydata {
@@ -104,6 +106,8 @@ RECOMP_PATCH void main_tick(void)
 			// @recomp: the frame's rate, from the retraces it took (at least one).
 			gEXEnable(gdl++);
 			gEXSetRefreshRate(gdl++, 60 / (g_Vars.diffframe60 > 0 ? g_Vars.diffframe60 : 1));
+			// @recomp: no interpolation across a move of the world's origin.
+			gdl = origin_tag_frame(gdl);
 
 			gDPSetTile(gdl++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 0, 0x0000, G_TX_LOADTILE, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOLOD);
 			gDPSetTile(gdl++, G_IM_FMT_RGBA, G_IM_SIZ_4b, 0, 0x0100, 6, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOLOD);
