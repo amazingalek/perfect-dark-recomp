@@ -20,7 +20,8 @@
 # then missed (20 in seven: Villa 2, G5 Building 5, Crash Site 3, Rescue 3, Defense 5, Skedar Ruins 1, Maian SOS 1),
 # and plays of a route through 12 of them that turns, strafes, fires and aims then missed (28 in five: G5 Building 13,
 # 5 of them Firefox's alone and 8 Chrome's; Air Base 5, 4 of them Firefox's alone; Crash Site 4, Defense 5, Skedar
-# Ruins 1).
+# Ruins 1), and the same route then missed 2 more in Air Base from Pages, and the boot as it plays by itself
+# for 45 s (publish_pages.sh's boot check) 3.
 # A new recording drops them unless they are added again.
 00504240 0080eccf fcff97ff ff2dfeff 04cb540b
 00504240 0089ec4f fcffffff fffdf6fb 1cc9540b
@@ -62,6 +63,9 @@ c41049d8 00992c0f fc26a004 1f1093fb 18075408
 00504340 00802c4f fcff9bff ff36ff7f 0aaaaa0b
 00404340 00800cef fc12fe25 fffffbfd 04cb550b
 c4112078 0098ac4f fc159804 5ffedbf8 0803100c
+00504240 00892c4f fcffffff fffe793c 1cc95408
+005041c8 00808ccf fc129a25 ff37ffff 0003540b
+005041c8 0089ec4f fcffffff fffe793c 1cc95408
 section defection
 00502048 00882c4f fc127e24 fffff9fc 0803540c
 0c182078 0099ac4f fc26a004 1f1093ff 1806440c
@@ -861,6 +865,8 @@ c4112078 00992c4f fc26a004 1f1093fb 1ccf540c
 c4104dd8 00992c4f fc26a004 1f1093fb 1ccf540c
 00552078 00882c4f fc127e24 fffff9fc 088a000c
 c4112078 0098ac6f fc159804 5ffedbf8 0803100c
+c4112078 0098ac0f fc159804 5ffedbf8 0803550c
+c4112078 0098ac4f fc159804 5ffedbf8 0803550c
 section airforceone
 0f0a4000 0099ac0f fc121824 ff33ffff 188e0008
 00552048 00882c0f fc40fe81 55fef97c 088a0008
