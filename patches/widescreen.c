@@ -292,6 +292,9 @@ RECOMP_PATCH Gfx *bg_scissor_within_viewport(Gfx *gdl, s32 viewleft, s32 viewtop
 	}
 
 	// @recomp: as wide as the frame while Expand widens, so RT64 widens what it scissors; one with no rows stays empty.
+	// Not cut to the portal as GoldenEye64Recomp-web's 62dfec0 and e517c93 cut: the z-buffer hides what is behind a
+	// wall (props and characters draw with it), and in Investigation, Chicago and Defection no room, prop or guard drew
+	// past its door at the whole width. Either cut left strips of clear colour where rooms reach the window's edges.
 	if (wide && viewtop < viewbottom) {
 		viewleft = g_Vars.currentplayer->viewleft;
 		viewright = g_Vars.currentplayer->viewleft + g_Vars.currentplayer->viewwidth;

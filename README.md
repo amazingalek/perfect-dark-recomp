@@ -10,7 +10,7 @@ A port of the N64 version of *Perfect Dark* (USA, revision 1) to PC and to the w
 it. Its symbols come from the [Perfect Dark decompilation](https://github.com/n64decomp/perfect_dark) (MIT), pinned
 at `lib/perfect_dark`. It is not an emulator and it contains no game data: you supply your own ROM.
 
-**Status: the desktop build plays a mission.** On Linux, with a desktop GPU (through Mesa's Dozen on WSL2),
+**Status: the desktop build plays a mission.** With a desktop GPU,
 *dataDyne Central - Defection* plays from its briefing to its end screen on Agent, with sound. The game's menus work:
 the agent file, the Perfect Menu, mission select, the briefing, retry and next mission. A save survives a restart: the
 agent file, the completed mission and the next one it unlocks. The game draws 59-60 frames a second in its levels,
@@ -22,8 +22,10 @@ is there at the next start. No Windows or Linux release is offered yet: build it
 
 Still wrong or not yet checked:
 
-- Once, after 22 minutes of play, the GPU device was lost (Dozen's D3D12 device removed, with an NVIDIA driver error
-  in the same second). A later 17-minute play never lost it, so the cause, Dozen or the game's drawing, isn't known.
+- On Linux under WSL2 the GPU device was lost twice through Mesa's Dozen, once after 22 minutes of play, once in a
+  sweep through missions' starts that left the program stuck in the host's GPU driver and froze the whole Windows
+  host. So the Linux build runs on the CPU (lavapipe) only; whether Dozen or the game's drawing caused it isn't known,
+  and the Windows build, which draws through D3D12 without Dozen, hasn't been played that long.
 - Speech (MP3): guards' lines start and play to their end in the game's MP3 player, but nobody has listened to them.
 - Clouds and water draw through a patch (the game draws them in a way RT64 doesn't), seen in Villa and Chicago but
   not compared with a console's.
