@@ -6,13 +6,16 @@
 // frame says it was made at (gEXSetRefreshRate), as GoldenEye's recompilation does, so each frame's display list
 // starts with it.
 //
-// A tick that would find no controller sample newer than the last tick's while a poll is out is put off to the next
-// retrace, once. As the game is, joy_debug_joy (src/lib/joy.c) stops and restarts the polling then, which takes two
-// VIs, and the retraces queued meanwhile start the next tick before the restarted poll's sample, so it misses too and
-// every frame is two VIs (docs/web.md, Frame rate). The poll that is out has its sample at the next VI's
-// joys_handle_retrace, which the scheduler runs before it sends that VI's retrace. Polling stopped (a pak's menu) has
-// no poll out, so the game restarts it as it would. Draining the retraces queued in main_loop instead wouldn't do: the
-// next tick would start at the RDP done of the task just submitted, before the next VI, and miss its sample as well.
+// A tick that would find no controller sample newer than the last tick's while a poll is out is put off, retrace by
+// retrace, until the sample comes, for two VIs at most. As the game is, joy_debug_joy (src/lib/joy.c) stops and
+// restarts the polling then, which takes two VIs, and the retraces queued meanwhile start the next tick before the
+// restarted poll's sample, so it misses too and every frame is two VIs (docs/web.md, Frame rate). The poll that is out
+// has its sample at the next VI's joys_handle_retrace, which the scheduler runs before it sends that VI's retrace.
+// Retraces already queued come first, two or more where a slow frame started that chain, so the tick is put off past
+// each of them, not once (once, the page fell back to 30 for 10-20 s at a time). Polling stopped (a pak's menu) has no
+// poll out, and a sample that hasn't come in two VIs is left to the game, which restarts the polling as it would.
+// Draining the retraces queued in main_loop instead wouldn't do: the next tick would start at the RDP done of the task
+// just submitted, before the next VI, and miss its sample as well.
 //
 // main_tick is src/lib/main.c's, as the decompilation builds it for ntsc-final (no DEBUG), with those two commands put
 // at the start of the frame's display list, the survey's tick before it (patches/shader_survey.c) and the put-off tick.
@@ -59,6 +62,7 @@ extern bool g_JoyBusy;
 extern u32 var8005eec0;
 
 static bool s_TickPutOff = false;
+static u32 s_TickPutOffAt;
 
 RECOMP_PATCH void main_tick(void)
 {
@@ -72,11 +76,17 @@ RECOMP_PATCH void main_tick(void)
 
 	if (g_MainChangeToStageNum < 0 && g_MainNumGfxTasks < NUM_GFXTASKS) {
 		// @recomp: no sample newer than the last tick's, with a poll out that brings one at the next VI: wait for it,
-		// once, where joy_debug_joy would restart the polling.
-		if (!s_TickPutOff && joy_is_cyclic_polling_enabled() && var8005eec0 && g_JoyBusy
+		// two VIs at most, where joy_debug_joy would restart the polling.
+		if (joy_is_cyclic_polling_enabled() && var8005eec0 && g_JoyBusy
 				&& g_JoyData[0].nextlast == g_JoyData[0].curlast) {
-			s_TickPutOff = true;
-			return;
+			if (!s_TickPutOff) {
+				s_TickPutOff = true;
+				s_TickPutOffAt = osGetCount();
+			}
+
+			if (osGetCount() - s_TickPutOffAt < 2 * CYCLES_PER_FRAME) {
+				return;
+			}
 		}
 
 		s_TickPutOff = false;
