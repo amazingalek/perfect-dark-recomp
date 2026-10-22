@@ -15,8 +15,8 @@
 # end screen), Combat Simulator, the Carrington Institute, and what a mission draws further in than its start (RT64
 # builds those when the game first asks for them). Flags follow settings (filtering, HDR, MSAA, upscaling), so a
 # change to one of those defaults means recording again.
-# Added by hand at the end of their level's section: the shaders the page's play plans then missed
-# (Defection 15, 9 of them as it starts in Firefox alone; Villa 3). A new recording drops them unless they are added
+# Added by hand at the end of their section: the shaders the page's play plans then missed (the boot 1,
+# Defection 15, 9 of them as it starts in Firefox alone; Villa 3). A new recording drops them unless they are added
 # again.
 00504240 0080eccf fcff97ff ff2dfeff 04cb540b
 00504240 0089ec4f fcffffff fffdf6fb 1cc9540b
@@ -57,6 +57,7 @@ c41049d8 00992c0f fc26a004 1f1093fb 18075408
 00504340 00892c4f fcffffff fffdf6fb 1aa8aa0b
 00504340 00802c4f fcff9bff ff36ff7f 0aaaaa0b
 00404340 00800cef fc12fe25 fffffbfd 04cb550b
+c4112078 0098ac4f fc159804 5ffedbf8 0803100c
 section defection
 00502048 00882c4f fc127e24 fffff9fc 0803540c
 0c182078 0099ac4f fc26a004 1f1093ff 1806440c
