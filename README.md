@@ -57,7 +57,9 @@ the console does. They are the game's own code (`patches/`, `src/`), taken from 
   PC port's default), finer when zoomed. Left click fires (Z), right click aims (R): while aiming the mouse moves the
   crosshair and, near the screen's edge, turns her. The wheel changes weapon. The game's Look Ahead, which levels the
   view as she walks, is off while the mouse plays. The pointer is locked to the game while Mouse Sensitivity is above
-  0%; the keyboard's defaults are a PC's, W and S walking, A and D strafing, the arrows turning.
+  0%; the keyboard's defaults are a PC's, W and S walking, A and D strafing, the arrows turning, E or R using what
+  is in front of her (a door, a console) and reloading otherwise (the game's B, which does both; held, it changes the
+  gun's function), Left Shift aiming (R), Space changing weapon (A) and Q firing (Z).
 
 Settings are saved as JSON in `%LOCALAPPDATA%\PerfectDarkRecompiled\` (`~/.config/PerfectDarkRecompiled/` on Linux).
 For the game as it shipped, set every Original value:
@@ -79,8 +81,8 @@ Left out:
 - **A game rate above 60, or uncapped**: the game already ticks up to 60 a second (it counts each frame's length in
   VIs), and RT64 interpolates above that. Ticking faster needs the PC port's fixes to footsteps, automatic fire and
   doors, which assume at most 60.
-- **Mouse in the menus, on the hoverbike, the CamSpy and the Slayer's rocket**, an invert option, and reload and
-  crouch keys: the game's buttons do those (the Controls tab binds them).
+- **Mouse in the menus, on the hoverbike, the CamSpy and the Slayer's rocket**, an invert option, a reload key apart
+  from use and a crouch key: the game's buttons do those (the Controls tab binds them).
 - **Widescreen split screen**, and the PC port's smaller options (crosshair sway, gun position, the extra HUD
   scaling).
 

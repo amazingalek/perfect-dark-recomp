@@ -8,7 +8,7 @@
 #     tools/play_linux.sh start path/to/pd.z64 [WxH]  start the game (the launcher is skipped) in a window of WxH,
 #                                                 1280x960 by default (1280x720 for widescreen)
 #     tools/play_linux.sh hold <ms> <key>...      hold keys together for ms, then let go (xdotool's key names: Return,
-#                                                 space, Shift_L, w, a, s, d, Up, ...; the bindings are src/config.cpp's)
+#                                                 space, Shift_L, w, a, s, d, Up, ...; the bindings are src/mouse.cpp's)
 #     tools/play_linux.sh mouse <dx> <dy> [n]     move the mouse by dx, dy, n times a frame apart (1)
 #     tools/play_linux.sh click <ms> <button>     hold a mouse button for ms (1 left, 3 right; 4 and 5 the wheel, 0 ms)
 #     tools/play_linux.sh shot <name>             a screenshot, build/play/<name>.png

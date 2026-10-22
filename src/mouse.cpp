@@ -72,12 +72,18 @@ namespace {
 
 void pd::init_mouse() {
     using recompinput::GameInput;
-    // RecompFrontend's defaults, but with A and D strafing (the C buttons' left and right) and the arrows turning, as
-    // a PC player expects with the mouse turning too. Only defaults: saved bindings and the Controls tab still apply.
+    // RecompFrontend's defaults, but as a PC player expects with the mouse turning too: A and D strafing (the C
+    // buttons' left and right), the arrows turning, and E and R on B, which uses what is in front of Joanna (a door, a
+    // console, an object) and reloads otherwise. The game reads L and R alike (both aim, both are the menus'
+    // shoulder), so L gets no key and R, aiming as the right button does, moves to B's left shift. Only defaults:
+    // bindings the player changed and the Controls tab still apply.
     set_keyboard(GameInput::X_AXIS_NEG, { SDL_SCANCODE_LEFT });
     set_keyboard(GameInput::X_AXIS_POS, { SDL_SCANCODE_RIGHT });
     set_keyboard(GameInput::C_LEFT, { SDL_SCANCODE_A });
     set_keyboard(GameInput::C_RIGHT, { SDL_SCANCODE_D });
+    set_keyboard(GameInput::B, { SDL_SCANCODE_E, SDL_SCANCODE_R });
+    set_keyboard(GameInput::L, {});
+    set_keyboard(GameInput::R, { SDL_SCANCODE_LSHIFT });
 
     SDL_AddEventWatch(watch_events, nullptr);
 }
@@ -92,7 +98,11 @@ void pd::add_mouse_option(recomp::config::Config& general) {
         "<br />"
         "<br />"
         "Left click fires and right click aims (Z and R): while aiming the mouse moves the crosshair, and near the "
-        "screen's edge turns her. The wheel changes weapon. The game's Look Ahead is off while the mouse plays.",
+        "screen's edge turns her. The wheel changes weapon. The game's Look Ahead is off while the mouse plays."
+        "<br />"
+        "<br />"
+        "E or R (B) uses what is in front of her, a door or a console, and reloads otherwise; held, it changes the "
+        "gun's function. Left Shift aims too.",
         50.0
     );
 }
