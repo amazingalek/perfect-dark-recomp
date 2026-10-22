@@ -83,7 +83,6 @@ every thread, in headless Chrome on a desktop GPU:
   `landRAMCopies`), so both graphics tasks are out at every VI. That cost is the shared support's, not the game's, and
   is N64Recomp-browser's to fix. The CPU wrote to no framebuffer with a late copy pending in the shader recording's
   21 levels or in the plays.
-- INTERLEAVED_PENDING
 
 `frametime_calculate` (`src/game/timing.c`) spins on `osGetCount` with no call that lets another thread run, but the
 main loop's half-frame wait before a tick leaves it little to spin: in the logos 66 of 599 calls spun, 9.7 ms in 10 s
