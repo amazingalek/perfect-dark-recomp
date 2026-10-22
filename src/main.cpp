@@ -388,8 +388,9 @@ int main(int argc, char** argv) {
 #ifdef _WIN32
     timeBeginPeriod(1);
     SetConsoleOutputCP(CP_UTF8);
-    // wasapi; directsound has had sample queueing issues.
-    SDL_setenv("SDL_AUDIODRIVER", "wasapi", true);
+    // wasapi; directsound has had sample queueing issues. An SDL_AUDIODRIVER already set wins, as on Linux: a test
+    // run writes the sound to a file with SDL's disk driver.
+    SDL_setenv("SDL_AUDIODRIVER", "wasapi", false);
 #endif
 
 #ifndef __EMSCRIPTEN__

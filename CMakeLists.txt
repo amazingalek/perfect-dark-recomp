@@ -1,6 +1,6 @@
 # Perfect Dark: Recompiled.
 # Based on rush-2049-recomp's CMakeLists.txt (GPL-3.0), itself on BanjoRecomp's. Desktop and web in one: the desktop
-# program builds on Linux (clang; tools/build_linux.sh) and Windows (clang-cl). With Emscripten (emcmake cmake;
+# program builds on Linux (clang; tools/build_linux.sh) and Windows (clang-cl; tools/build_windows.sh). With Emscripten (emcmake cmake;
 # tools/build_web.sh) it builds the page, PerfectDarkRecompiled.html, through lib/N64Recomp-browser/frontend
 # (docs/web.md). RecompiledFuncs/ and RecompiledPatches/ come from tools/recompile.sh and the patches step below, both
 # from the player's ROM (docs/building.md).
@@ -286,7 +286,7 @@ if (WIN32)
 
     target_link_libraries(PerfectDarkRecompiled PRIVATE SDL2 Winmm.lib)
     # A window program, so no console window opens behind the game; main() stays the entry point. The log still
-    # reaches a redirect (iterate.sh's run.log), and --show-console opens a console for it (main.cpp).
+    # reaches a redirect of stdout and stderr.
     target_link_options(PerfectDarkRecompiled PRIVATE /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup)
 endif()
 
