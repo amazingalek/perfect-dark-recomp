@@ -116,7 +116,9 @@ scheduler (`g_Sched`, `g_MainNumGfxTasks`) a few milliseconds at a time and from
   most of the minute, 38-50 in the plan's firing, against 30 throughout for the page without it, every frame two VIs
   (one of its plays had a 10 s stretch at 57-59, the chain broken by slow lists). Presents 343.6 and 342.6 a second
   against 326.3 and 338.3, held by the uncapped rate (360) in all four, no WebGPU errors, no sound short, no shader
-  missed.
+  missed. In Firefox, the regular plan with its default prefs: no WebGPU errors or exceptions, no shader missed, 23
+  sound frames short with the host half busy with another build, Defection 42-56 frames of the game a second under
+  presents its compositor holds near 60.
 - Render to RAM's late copy (`src/main.cpp`) is not what held a level at 30: a page whose display lists go ahead with
   the previous copy still pending draws Defection at 29-31 like this one, capped and uncapped, and a Chrome trace of
   30 s there has RT64's Gfx thread idle 90% and the game's main thread all in `joy_debug_joy`, waiting in `osRecvMesg`
