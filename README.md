@@ -21,14 +21,18 @@ Still wrong or not yet checked:
 
 - Once, after 22 minutes of play, the GPU device was lost (Dozen's D3D12 device removed, with an NVIDIA driver error
   in the same second). A later 17-minute play never lost it, so the cause, Dozen or the game's drawing, isn't known.
-- Why every frame is two VIs, even in a menu that draws little, isn't known. On a console the game draws at 15-30.
+- Why every frame of a level is two VIs on the desktop isn't known. In the menus the game's own code makes it so, and
+  in a level the page draws 55-60 where render to RAM's copy doesn't hold it back ([docs/web.md](docs/web.md), Frame
+  rate). On a console the game draws at 15-30.
 - Speech (MP3): guards' lines start and play to their end in the game's MP3 player, but nobody has listened to them.
 - Clouds and water draw through a patch (the game draws them in a way RT64 doesn't), seen in Villa and Chicago but
   not compared with a console's.
 - No Windows build has been linked and run, the launcher has only been skipped (`--boot`), and rumble hasn't been
   felt on a pad.
 
-The web page comes next.
+**The web page is built and played locally, not published** ([docs/web.md](docs/web.md)). In Chrome and Firefox it
+boots with no WebGPU errors, builds its shaders from a prebuilt list with a section a mission, and plays Defection,
+Villa and Chicago, each started by a script, its sound playing.
 
 ## The ROM
 

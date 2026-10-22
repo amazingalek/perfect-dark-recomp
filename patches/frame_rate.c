@@ -7,7 +7,7 @@
 // each frame's display list starts with it.
 //
 // main_tick is src/lib/main.c's, as the decompilation builds it for ntsc-final (no DEBUG), with those two commands put
-// at the start of the frame's display list.
+// at the start of the frame's display list, and the survey's tick before it (patches/shader_survey.c).
 
 #include "patches.h"
 #include "rt64_extended_gbi.h"
@@ -34,12 +34,17 @@ extern u32 g_MainNumGfxTasks;
 extern s32 g_MainChangeToStageNum;
 extern s32 g_StageNum;
 
+void shader_survey_tick(void);
+
 RECOMP_PATCH void main_tick(void)
 {
 	Gfx *gdl;
 	Gfx *gdlstart;
 	OSScMsg msg = {OS_SC_DONE_MSG, NULL};
 	s32 i;
+
+	// @recomp: a script's request to start a mission, between frames (patches/shader_survey.c).
+	shader_survey_tick();
 
 	if (g_MainChangeToStageNum < 0 && g_MainNumGfxTasks < NUM_GFXTASKS) {
 		frametime_calculate();
