@@ -65,8 +65,8 @@ report). The mouse in a player's browser, headed, hasn't been played.
 
 ## The shader list
 
-`src/rt64_shaders.txt` holds 667 shaders, which RT64 builds as 271 pipelines: 38 for the boot, then a section a solo
-mission (21 sections of 29-126, a shader in the section of every mission that draws it). It was recorded in headless
+`src/rt64_shaders.txt` holds 668 shaders, which RT64 builds as 271 pipelines: 38 for the boot, then a section a solo
+mission (21 sections of 29-127, a shader in the section of every mission that draws it). It was recorded in headless
 Chrome at 1256x645 by `tools/record_shaders.sh`, a page load a mission, about 25 minutes in all; its header says what
 each section played and what it leaves out. The plans' plays then missed 19 more, added by hand at the end of the
 boot's, Defection's and Villa's sections: 10 in Chrome, different ones each run (the boot's as Defection loads, before
