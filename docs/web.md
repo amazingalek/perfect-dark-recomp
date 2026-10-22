@@ -154,6 +154,19 @@ scheduler (`g_Sched`, `g_MainNumGfxTasks`) a few milliseconds at a time and from
   idle host: GoldenEye 358 and 347 presents a second, held by the uncapped rate (360), and Perfect Dark 340 and 329,
   with no WebGPU errors and no short sound in either. A present is RT64's interpolated frame, so even at 30 frames of
   the game a second Perfect Dark's page presented near the rate its display allows.
+- Capped, though, at a display above the game's 60, the page presented far fewer: on a 240 Hz display, Defection at
+  61-62 presents a second in Chrome and 55-67 in Firefox, the game at 58 and at 42-52. Each frame told RT64 its own
+  rate (60 over its own retraces), and a frame of two VIs among frames of one, a few a second in a level, read as 30:
+  RT64 planned two VIs of presents for it and dropped half when the next frame came a VI later. RT64's pacing counts
+  drops as the GPU falling behind, paces to a multiple of the latest rate, and tries the display's rate again after
+  10-120 s, so the rate it paced to flipped between 30, 60 and 120 with the frames (about 130 changes in a play, read
+  from a test build that printed each one) and its tries back up failed within a second. The rate a frame gives RT64
+  is a guess at how long it stays on screen, since its interpolated frames are drawn before the next one comes, so
+  `patches/frame_rate.c` gives the fastest of the last three frames' instead, as RT64 guesses from the VIs itself.
+  The same tree with and without it, the regular plan at the display's 240 Hz on a desktop GPU, interleaved, whole GPU
+  turns on an idle host (N64Recomp-browser's `plays.jsonl`, set `pd-fps`), Defection: Chrome 116-117 presents a
+  second against 61-62, Firefox 216-219 against 55-67 with the game at 58 against 42-52; no WebGPU errors. Chrome's
+  stay at 120: its sleeps to a 240 Hz display's slots end late, as other pages' do there.
 
 `frametime_calculate` (`src/game/timing.c`) spins on `osGetCount` with no call that lets another thread run, but the
 main loop's half-frame wait before a tick leaves it little to spin: in the logos 66 of 599 calls spun, 9.7 ms in 10 s

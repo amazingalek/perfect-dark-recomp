@@ -187,7 +187,8 @@ The frame rate, from `g_Vars` read while it runs (`thisframestartt` per frame, `
 the game's clock), with the host idle, is 59-60 a second in the levels by the game's own clock, every frame one VI:
 Defection 59.9, Investigation 60.0, Chicago 59.2, the menus 58-60. The game counts each frame's length in VIs and its
 clock keeps to real time, so nothing in the game runs too fast and no fix for a rate above the console's is needed.
-Each frame tells RT64 its rate (`patches/frame_rate.c`), and RT64 interpolates to the display's. As the game is, frames
+Each frame tells RT64 the game's rate, the fastest of its last three frames' (`patches/frame_rate.c`), and RT64
+interpolates to the display's. As the game is, frames
 take two VIs, even in a menu that draws little, because of its own controller reads: a tick that finds no new sample
 restarts the controller polling (`joy_debug_joy`, `joy.c`), which takes two VIs, and the retraces queued meanwhile
 start the next tick before the next sample, so the ticks after it miss too. `patches/frame_rate.c` puts such a tick off
