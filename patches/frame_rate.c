@@ -2,12 +2,20 @@
 //
 // The main loop ticks at most once a retrace (g_Vars.mininc60, 1 in every build) and each tick advances the game by
 // the time it took, counted in 1/60 s and 1/240 s (frametime_calculate, src/game/timing.c): on a console Perfect Dark
-// draws at 15-30 a second, here at 30, every frame two VIs (its controller reads, docs/web.md, Frame rate). RT64
-// interpolates to the display's rate from the rate a frame says it was made at (gEXSetRefreshRate), as GoldenEye's
-// recompilation does, so each frame's display list starts with it.
+// draws at 15-30 a second, here at 60 where the host keeps up. RT64 interpolates to the display's rate from the rate a
+// frame says it was made at (gEXSetRefreshRate), as GoldenEye's recompilation does, so each frame's display list
+// starts with it.
+//
+// A tick that would find no controller sample newer than the last tick's while a poll is out is put off to the next
+// retrace, once. As the game is, joy_debug_joy (src/lib/joy.c) stops and restarts the polling then, which takes two
+// VIs, and the retraces queued meanwhile start the next tick before the restarted poll's sample, so it misses too and
+// every frame is two VIs (docs/web.md, Frame rate). The poll that is out has its sample at the next VI's
+// joys_handle_retrace, which the scheduler runs before it sends that VI's retrace. Polling stopped (a pak's menu) has
+// no poll out, so the game restarts it as it would. Draining the retraces queued in main_loop instead wouldn't do: the
+// next tick would start at the RDP done of the task just submitted, before the next VI, and miss its sample as well.
 //
 // main_tick is src/lib/main.c's, as the decompilation builds it for ntsc-final (no DEBUG), with those two commands put
-// at the start of the frame's display list, and the survey's tick before it (patches/shader_survey.c).
+// at the start of the frame's display list, the survey's tick before it (patches/shader_survey.c) and the put-off tick.
 
 #include "patches.h"
 #include "rt64_extended_gbi.h"
@@ -36,6 +44,22 @@ extern s32 g_StageNum;
 
 void shader_survey_tick(void);
 
+// src/lib/joy.c's, which no header has.
+struct joydata {
+	struct {
+		OSContPad pads[4];
+	} samples[20];
+	s32 curlast;
+	s32 curstart;
+	s32 nextlast;
+};
+
+extern struct joydata g_JoyData[];
+extern bool g_JoyBusy;
+extern u32 var8005eec0;
+
+static bool s_TickPutOff = false;
+
 RECOMP_PATCH void main_tick(void)
 {
 	Gfx *gdl;
@@ -47,6 +71,15 @@ RECOMP_PATCH void main_tick(void)
 	shader_survey_tick();
 
 	if (g_MainChangeToStageNum < 0 && g_MainNumGfxTasks < NUM_GFXTASKS) {
+		// @recomp: no sample newer than the last tick's, with a poll out that brings one at the next VI: wait for it,
+		// once, where joy_debug_joy would restart the polling.
+		if (!s_TickPutOff && joy_is_cyclic_polling_enabled() && var8005eec0 && g_JoyBusy
+				&& g_JoyData[0].nextlast == g_JoyData[0].curlast) {
+			s_TickPutOff = true;
+			return;
+		}
+
+		s_TickPutOff = false;
 		frametime_calculate();
 		profile00009a98();
 		profile_reset();
