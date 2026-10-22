@@ -267,21 +267,11 @@ RECOMP_PATCH void cam0f0b5838(void)
 
 RECOMP_PATCH Gfx *bg_scissor_within_viewport(Gfx *gdl, s32 viewleft, s32 viewtop, s32 viewright, s32 viewbottom)
 {
-	// @recomp: as wide as the frame while Expand widens, so RT64 widens what it scissors.
-	if (ws_ext() > 0.0f) {
-		if (viewtop < g_Vars.currentplayer->viewtop) {
-			viewtop = g_Vars.currentplayer->viewtop;
-		}
-
-		if (viewbottom > g_Vars.currentplayer->viewtop + g_Vars.currentplayer->viewheight) {
-			viewbottom = g_Vars.currentplayer->viewtop + g_Vars.currentplayer->viewheight;
-		}
-
-		gDPSetScissor(gdl++, G_SC_NON_INTERLACE, g_Vars.currentplayer->viewleft, viewtop,
-				g_Vars.currentplayer->viewleft + g_Vars.currentplayer->viewwidth, viewbottom);
-
-		return gdl;
-	}
+	// @recomp: whether it is in the view as wide as the window, which it is drawn across (below).
+	f32 ext = ws_cull_ext();
+	bool wide = ext > 0.0f && viewleft < viewright
+		&& viewright > g_Vars.currentplayer->viewleft - ext
+		&& viewleft < g_Vars.currentplayer->viewleft + g_Vars.currentplayer->viewwidth + ext;
 
 	if (viewleft < g_Vars.currentplayer->viewleft) {
 		viewleft = g_Vars.currentplayer->viewleft;
@@ -297,6 +287,12 @@ RECOMP_PATCH Gfx *bg_scissor_within_viewport(Gfx *gdl, s32 viewleft, s32 viewtop
 
 	if (viewbottom > g_Vars.currentplayer->viewtop + g_Vars.currentplayer->viewheight) {
 		viewbottom = g_Vars.currentplayer->viewtop + g_Vars.currentplayer->viewheight;
+	}
+
+	// @recomp: as wide as the frame while Expand widens, so RT64 widens what it scissors; one with no rows stays empty.
+	if (wide && viewtop < viewbottom) {
+		viewleft = g_Vars.currentplayer->viewleft;
+		viewright = g_Vars.currentplayer->viewleft + g_Vars.currentplayer->viewwidth;
 	}
 
 	gDPSetScissor(gdl++, G_SC_NON_INTERLACE, viewleft, viewtop, viewright, viewbottom);
