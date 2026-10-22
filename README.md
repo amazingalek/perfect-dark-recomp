@@ -57,9 +57,12 @@ the console does. They are the game's own code (`patches/`, `src/`), taken from 
   A gun's zoom and the Farsight magnify as much as ever, and the gun in her hand is drawn at the game's angle, as the
   PC port draws it; cutscenes and the menus keep the game's angle.
 - **Mouse look and aim**: the mouse turns Joanna and tilts her view, a count turning her 0.055 degrees at 50% (the
-  PC port's default), finer when zoomed. Left click fires (Z), right click aims (R): while aiming the mouse moves the
-  crosshair and, near the screen's edge, turns her. The wheel changes weapon. The game's Look Ahead, which levels the
-  view as she walks, is off while the mouse plays. The pointer is locked to the game while Mouse Sensitivity is above
+  PC port's default), finer when zoomed. Left click fires (Z), right click and Left Shift aim, as
+  GoldenEye64Recomp-web's mouse aims: the crosshair shows and the weapons that zoom zoom, the wheel zooms the sniper
+  rifle further, and she walks, strafes and turns as she does without aiming, the mouse turning her with the crosshair
+  at the centre. The game's own aim mode, which a pad's R still holds, would stop her: its stick moves the crosshair.
+  The wheel changes weapon. The game's Look Ahead, which levels the view as she walks, is off while the mouse plays.
+  The pointer is locked to the game while Mouse Sensitivity is above
   0%; the keyboard's defaults are a PC's, W and S walking, A and D strafing, the arrows turning, E or R using what
   is in front of her (a door, a console) and reloading otherwise (the game's B, which does both; held, it changes the
   gun's function), Left Shift aiming (R), Space changing weapon (A) and Q firing (Z).

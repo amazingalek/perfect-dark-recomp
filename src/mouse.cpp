@@ -4,7 +4,9 @@
 // the motion and the wheel are added up here from every SDL event, until the game's tick takes them:
 //  - the motion, scaled as the PC port scales it (0.022/3.5 a count at its default, which is 50% here);
 //  - the wheel's notches, up positive;
-//  - the left button as Z (fire) and the right as R (aim) on controller 1 (get_input).
+//  - the left button as Z (fire) and the right as R (aim, and the menus' shoulder button) on controller 1 (get_input);
+//  - whether the mouse's aim is held (recomp_pd_mouse_aim_held): the right button or a key on L or R, which the
+//    patches turn into an aim that lets her walk, where a pad's L and R stay the game's aim mode.
 // Nothing reaches the game while the frontend's menus have the input or the pointer isn't locked, and what the game
 // didn't take for 100 ms (a cutscene, a pause, the radial menu) is dropped, so it doesn't turn her all at once after.
 
@@ -97,8 +99,9 @@ void pd::add_mouse_option(recomp::config::Config& general) {
         "does, less when zoomed. <b>0% is the original game</b>: no mouse, and the pointer stays free."
         "<br />"
         "<br />"
-        "Left click fires and right click aims (Z and R): while aiming the mouse moves the crosshair, and near the "
-        "screen's edge turns her. The wheel changes weapon. The game's Look Ahead is off while the mouse plays."
+        "Left click fires and right click aims (Z and R): aiming shows the crosshair and zooms the weapons that zoom, "
+        "and she walks, strafes and turns as she does without it, the mouse turning her. The wheel changes weapon, or "
+        "zooms the sniper rifle while aiming. The game's Look Ahead is off while the mouse plays."
         "<br />"
         "<br />"
         "E or R (B) uses what is in front of her, a door or a console, and reloads otherwise; held, it changes the "
@@ -124,6 +127,23 @@ bool pd::get_input(int controller_num, uint16_t* buttons_out, float* x_out, floa
 // recomp_pd_mouse_playing(): whether the mouse plays: Mouse Sensitivity above 0% and the pointer locked to the game.
 extern "C" void recomp_pd_mouse_playing(uint8_t* rdram, recomp_context* ctx) {
     _return<int32_t>(ctx, recompui::config::general::get_mouse_sensitivity() > 0.0 && game_has_mouse() ? 1 : 0);
+}
+
+// recomp_pd_mouse_aim_held(): whether the mouse's aim is held: the right button, or a key bound to L or R (Left Shift),
+// while the mouse plays. Not a pad's L or R, which stay the game's aim mode, the stick moving its crosshair.
+extern "C" void recomp_pd_mouse_aim_held(uint8_t* rdram, recomp_context* ctx) {
+    using recompinput::GameInput;
+    bool held = false;
+    if (game_has_mouse()) {
+        held = (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
+        int profile = recompinput::profiles::get_sp_keyboard_profile_index();
+        for (size_t i = 0; profile >= 0 && i < recompinput::num_bindings_per_input; i++) {
+            for (GameInput input : { GameInput::L, GameInput::R }) {
+                held |= recompinput::get_input_digital(0, recompinput::profiles::get_input_binding(profile, input, i));
+            }
+        }
+    }
+    _return<int32_t>(ctx, held ? 1 : 0);
 }
 
 // recomp_pd_mouse_take(f32 *dx, f32 *dy): the motion since the last take, in the PC port's units, right and down
