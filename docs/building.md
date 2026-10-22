@@ -186,11 +186,12 @@ The frame rate, from `g_Vars` read while it runs (`thisframestartt` per frame, `
 the game's clock), with the host idle, is 30.0 a second. Every frame is 2 VIs, in a menu and on Defection's roof
 alike, and on Investigation 418 of 450 frames are 2 (16 are 1, 16 are 3). The game's clock runs at 1.000x real time,
 so nothing in the game runs too fast and no fix for a rate above the console's is needed. Each frame tells RT64 its
-rate (`patches/frame_rate.c`), and RT64 interpolates to the display's. Why a frame never takes one VI, even in a menu
-that draws little, isn't known: the main loop ticks at most once a retrace with at most two graphics tasks out
-(`main.c`), and `__scTaskReady` (`sched.c`) holds a task while a VI swap is pending. The web page found the menus'
-two VIs in the game's own controller reads, and a level's in render to RAM's copy waiting for the GPU
-([web.md](web.md), Frame rate); neither has been measured on the desktop.
+rate (`patches/frame_rate.c`), and RT64 interpolates to the display's. Frames take two VIs, even in a menu that draws
+little, because of the game's own controller reads: a tick that finds no new sample restarts the controller
+polling (`joy_debug_joy`, `joy.c`), which takes two VIs, and the retraces queued meanwhile start the next tick before
+the next sample, so the ticks after it miss too. Measured here in Defection, with patches counting ticks: as many ticks found no
+sample as took two VIs, and with such a tick put off to the next retrace the game drew 58-60 ([web.md](web.md), Frame
+rate).
 
 ### What the build needs that isn't obvious
 
