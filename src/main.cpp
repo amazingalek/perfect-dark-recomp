@@ -443,9 +443,10 @@ int main(int argc, char** argv) {
         .create_render_context = [](uint8_t* rdram, ultramodern::renderer::WindowHandle window_handle, bool developer_mode) {
             auto presentation_mode = ultramodern::renderer::PresentationMode::PresentEarly;
 #ifdef __EMSCRIPTEN__
-            // Render to RAM stays on (RT64's default), but on the page a display list doesn't wait for its frame's copy
-            // into RDRAM, which lands when the next list starts: what the game reads back does with a frame one list old
-            // (Dam's lamps still glare), and a list in Dam took 3.8-5.2 ms in headless Chrome instead of 8.0-9.7.
+            // Render to RAM stays on (RT64's default): the light and sun glares read the depth buffer on the CPU when the
+            // RDP is done (sched_update_pending_artifacts). On the page a display list doesn't wait for its frame's copy
+            // into RDRAM, which lands when the next list starts, so the glares read a frame one list old. The CPU wrote
+            // to no framebuffer with a copy pending in the shader recording's 21 levels (docs/web.md, Frame rate).
             recompui::renderer::set_render_to_ram_late(true);
 #endif
             return recompui::renderer::create_render_context(rdram, window_handle, presentation_mode, developer_mode);

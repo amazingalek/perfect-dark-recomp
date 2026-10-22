@@ -186,7 +186,9 @@ alike, and on Investigation 418 of 450 frames are 2 (16 are 1, 16 are 3). The ga
 so nothing in the game runs too fast and no fix for a rate above the console's is needed. Each frame tells RT64 its
 rate (`patches/frame_rate.c`), and RT64 interpolates to the display's. Why a frame never takes one VI, even in a menu
 that draws little, isn't known: the main loop ticks at most once a retrace with at most two graphics tasks out
-(`main.c`), and `__scTaskReady` (`sched.c`) holds a task while a VI swap is pending.
+(`main.c`), and `__scTaskReady` (`sched.c`) holds a task while a VI swap is pending. The web page found the menus'
+two VIs in the game's own controller reads, and a level's in render to RAM's copy waiting for the GPU
+([web.md](web.md), Frame rate); neither has been measured on the desktop.
 
 ### What the build needs that isn't obvious
 
@@ -244,7 +246,8 @@ that draws little, isn't known: the main loop ticks at most once a retrace with 
 - The sky patch's clouds and water haven't been compared with a console's. The water's texture scale is the PC
   port's (a tenth of what the game computes), and nobody has played a level with clouds from start to end.
 - `frametime_calculate` (`src/game/timing.c`) spins on `osGetCount`, but `main_loop` calls a tick only half a frame
-  after the last, so it spins little; it has no yield.
+  after the last, so it spins little; it has no yield. On the page it spun 9.7 ms in 10 s of the logos and none in
+  Defection ([web.md](web.md), Frame rate).
 
 ### Debugging it
 
