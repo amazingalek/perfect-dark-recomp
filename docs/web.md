@@ -79,21 +79,34 @@ about 8 s.
 The game ticks at most once a retrace with at most two graphics tasks out, and counts each frame's length in VIs (the
 decompilation's `src/lib/main.c` and `src/game/timing.c`), so it draws up to 60 a second wherever it can. What it draws
 on the page, read from the scheduler (`g_Sched`, `g_MainNumGfxTasks`) a millisecond at a time and from Chrome traces of
-every thread, in headless Chrome on a desktop GPU:
+every thread, in headless Chrome on a desktop GPU unless a line says otherwise:
 
 - The boot's logos: 60, a tick every VI.
-- The title and the file menu: 30, capped or not. This is the game's own code. PD's scheduler sends the main loop a
-  retrace at every RDP done as well as at every VI (`__scHandleTasks`, `src/lib/sched.c`), so a tick can start between
-  VIs. A tick that finds no controller sample newer than the last tick's (`joy_debug_joy`, `src/lib/joy.c`) stops and
-  restarts the controller polling to read one, and the scheduler answers each of those at its next retrace: the tick
-  takes two VIs, and the retraces queued meanwhile start the next tick at once, again before the next sample.
-- A level: capped at 60 presents a second, 18 frames in 20 VIs at Defection's start, each graphics task done 1-2 ms
-  after it was sent. Uncapped, or capped where the display's rate is high (headless Chrome's animation frames come
-  about 174 a second), 30: render to RAM's late copy (`src/main.cpp`) lands when the next display list starts, Chrome
-  queues the copy's readback behind every present, and the list waits for it (85% of the Gfx thread's samples were in
-  `landRAMCopies`), so both graphics tasks are out at every VI. That cost is the shared support's, not the game's, and
-  is N64Recomp-browser's to fix. The CPU wrote to no framebuffer with a late copy pending in the shader recording's
-  21 levels or in the plays.
+- The title, the file menu and a level: 30, capped or not (the desktop build 30-38). This is the game's own code. PD's
+  scheduler sends the main loop a retrace at every RDP done as well as at every VI (`__scHandleTasks`,
+  `src/lib/sched.c`), and the main loop ticks at any retrace half a frame or more after the last tick started
+  (`main_loop`, `src/lib/main.c`), so a tick can start between VIs. A tick that finds no controller sample newer than
+  the last tick's (`joy_debug_joy`, `src/lib/joy.c`) stops and restarts the controller polling to read one, and the
+  scheduler answers each of those at its next retrace (`joys_handle_retrace`): the tick takes two VIs, and the poll it
+  restarted has its sample only at the VI after. The retraces queued meanwhile start the next tick as soon as this one
+  ends, before that VI, so it finds no sample either. Once a tick misses, the ticks after it miss too, for as long as
+  a tick's work after its controller read is shorter than a VI, as it is on a fast CPU; on a console the game draws
+  at 15-30.
+- That chain, measured on the desktop build in Defection (patches that count ticks and the messages queued at each,
+  and a switch flipped in memory, 20 s each way in turn, twice, on an idle host through Dozen): as the game is, 36-38
+  frames a second, 411-451 of 710-753 ticks found no new sample, as many as took two VIs, and a tick started with
+  1.1-1.3 retraces already queued. With a tick that finds no sample while a poll is out put off to the next retrace,
+  58-60, every frame one VI, no tick without a sample or with a retrace queued, the game's clock 0.97-1.00x real time.
+  The runtime's controller polling has no part in it: `osContStartReadData` (N64ModernRuntime) posts its message at
+  once, so a poll started at one VI has its sample by the next, as on a console.
+- Render to RAM's late copy (`src/main.cpp`) is not what holds a level at 30: a page whose display lists go ahead with
+  the previous copy still pending draws Defection at 29-31 like this one, capped and uncapped, and a Chrome trace of
+  30 s there has RT64's Gfx thread idle 90% and the game's main thread all in `joy_debug_joy`, waiting in `osRecvMesg`
+  for the scheduler's retraces (N64Recomp-browser's docs/findings.md, Ruled out, measured). Lists that run slow break
+  the chain: with two graphics tasks out a retrace starts no tick and the queue empties, so the next tick starts at a
+  VI with its sample. That fits the 55-60 of the first capped plays, without the prebuilt shader list, 18 frames in
+  20 VIs at Defection's start. The CPU wrote to no framebuffer with a late copy pending in the shader recording's 21
+  levels or in the plays.
 - Beside GoldenEye's page from Pages, the regular plans played in turn uncapped, two of each, on an idle host: GoldenEye
   358 and 347 presents a second, held by the uncapped rate (360), and Perfect Dark 340 and 329, with no WebGPU errors
   and no short sound in either. A present is RT64's interpolated frame, so at 30 frames of the game a second in a level

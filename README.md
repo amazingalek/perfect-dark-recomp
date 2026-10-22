@@ -21,9 +21,10 @@ Still wrong or not yet checked:
 
 - Once, after 22 minutes of play, the GPU device was lost (Dozen's D3D12 device removed, with an NVIDIA driver error
   in the same second). A later 17-minute play never lost it, so the cause, Dozen or the game's drawing, isn't known.
-- Why every frame of a level is two VIs on the desktop isn't known. In the menus the game's own code makes it so, and
-  in a level the page draws 55-60 where render to RAM's copy doesn't hold it back ([docs/web.md](docs/web.md), Frame
-  rate). On a console the game draws at 15-30.
+- Every frame is two VIs, in the menus and the levels, on the desktop and the page alike, where 60 could be drawn: a
+  tick that finds no new controller sample restarts the controller polling, which takes two VIs, and the retraces
+  queued meanwhile start the next tick before the next sample, so it misses too (the game's own code,
+  [docs/web.md](docs/web.md), Frame rate). On a console the game draws at 15-30.
 - Speech (MP3): guards' lines start and play to their end in the game's MP3 player, but nobody has listened to them.
 - Clouds and water draw through a patch (the game draws them in a way RT64 doesn't), seen in Villa and Chicago but
   not compared with a console's.
