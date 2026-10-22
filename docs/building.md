@@ -182,16 +182,16 @@ MP3 player is on. Defection's and Investigation's skies are a fill and stars, wh
 other levels draw too (`patches/sky.c`), seen in Villa's and Chicago's intros and in Chicago in play, each reached
 by setting `g_MainChangeToStageNum` while the game ran. rt64#198's flicker hasn't been seen.
 
-The frame rate, from `g_Vars` read while it runs (`thisframestartt` per frame, `diffframe60` its VIs, `lvframe60`
-the game's clock), with the host idle, is 30.0 a second. Every frame is 2 VIs, in a menu and on Defection's roof
-alike, and on Investigation 418 of 450 frames are 2 (16 are 1, 16 are 3). The game's clock runs at 1.000x real time,
-so nothing in the game runs too fast and no fix for a rate above the console's is needed. Each frame tells RT64 its
-rate (`patches/frame_rate.c`), and RT64 interpolates to the display's. Frames take two VIs, even in a menu that draws
-little, because of the game's own controller reads: a tick that finds no new sample restarts the controller
-polling (`joy_debug_joy`, `joy.c`), which takes two VIs, and the retraces queued meanwhile start the next tick before
-the next sample, so the ticks after it miss too. Measured here in Defection, with patches counting ticks: as many
-ticks found no sample as took two VIs, and with such a tick put off to the next retrace the game drew 58-60
-([web.md](web.md), Frame rate).
+The frame rate, from `g_Vars` read while it runs (`thisframestartt` per frame, `diffframe60` its VIs, `lvframe240`
+the game's clock), with the host idle, is 59-60 a second in the levels by the game's own clock, every frame one VI:
+Defection 59.9, Investigation 60.0, Chicago 59.2, the menus 58-60. The game counts each frame's length in VIs and its
+clock keeps to real time, so nothing in the game runs too fast and no fix for a rate above the console's is needed.
+Each frame tells RT64 its rate (`patches/frame_rate.c`), and RT64 interpolates to the display's. As the game is, frames
+take two VIs, even in a menu that draws little, because of its own controller reads: a tick that finds no new sample
+restarts the controller polling (`joy_debug_joy`, `joy.c`), which takes two VIs, and the retraces queued meanwhile
+start the next tick before the next sample, so the ticks after it miss too. `patches/frame_rate.c` puts such a tick off
+until the poll that is out has its sample, at the next VI; without it the same play draws Defection at 38.4,
+Investigation at 30.0 and Chicago at 48.8 ([web.md](web.md), Frame rate).
 
 ### What the build needs that isn't obvious
 
