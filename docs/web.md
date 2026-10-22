@@ -65,14 +65,17 @@ report). The mouse in a player's browser, headed, hasn't been played.
 
 ## The shader list
 
-`src/rt64_shaders.txt` holds 648 shaders, which RT64 builds as 270 pipelines: 38 for the boot, then a section a solo
-mission (21 sections of 29-125, a shader in the section of every mission that draws it). It was recorded in headless
+`src/rt64_shaders.txt` holds 667 shaders, which RT64 builds as 271 pipelines: 38 for the boot, then a section a solo
+mission (21 sections of 29-126, a shader in the section of every mission that draws it). It was recorded in headless
 Chrome at 1256x645 by `tools/record_shaders.sh`, a page load a mission, about 25 minutes in all; its header says what
 each section played and what it leaves out. The plans' plays then missed 19 more, added by hand at the end of the
 boot's, Defection's and Villa's sections: 10 in Chrome, different ones each run (the boot's as Defection loads, before
-its section starts), and 9 that Firefox draws each time Defection starts and Chrome never has. With them the regular plan misses none in either browser. Firefox waits about 3 s for the boot's section
-before the first frame and about 3 s for Defection's as it starts; Chrome builds the whole list behind the launcher in
-about 8 s.
+its section starts), and 9 that Firefox draws each time Defection starts and Chrome never has. With them the regular
+plan misses none in either browser. A minute in each solo mission, started as the plans start Defection, then missed 19
+more in seven of them (Villa 1, G5 Building 5, Crash Site 3, Rescue 3, Defense 5, Skedar Ruins 1, Maian SOS 1), each
+added at the end of its mission's section; with them a minute in each of the seven misses none in Chrome
+(N64Recomp-browser's `plays.jsonl`). Firefox waits about 3 s for the boot's section before the first frame and about 3 s
+for Defection's as it starts; Chrome builds the whole list behind the launcher in about 8 s.
 
 ## Frame rate
 
