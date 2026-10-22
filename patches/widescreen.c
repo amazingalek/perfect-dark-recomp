@@ -12,14 +12,16 @@
 //  - Scissors: a room's, prop's or character's scissor (bg_scissor_within_viewport) spans the frame's whole width,
 //    as GoldenEye's recompilation does its own: RT64 widens a projection only where its scissor spans the frame's, so
 //    a room seen through a door, scissored to the door, was drawn at 4:3 and cut at the 4:3 edge. The z-buffer still
-//    hides what the scissor did. A scissor wider than the frame would make RT64 judge the frame not to be 4:3 and
-//    widen nothing.
+//    hides what the scissor did. One outside the wider view or with no rows stays as the game gives it (made as wide
+//    as the frame, an empty one lost the GPU device under Dozen as Joanna fired). A scissor wider than the frame would
+//    make RT64 judge the frame not to be 4:3 and widen nothing.
 //  - HUD: the mission timer and the left-aligned HUD messages go to the window's left edge, the ammo, the
 //    right-aligned messages and the radar to its right, through RT64's rectangle alignment and, for a message's box
 //    (triangles), its viewport alignment, inside a scissor as wide as the window. HUD Placement (RecompFrontend) then
 //    decides how far out that is. The crosshair, the gun and the sights stay centred.
 //  - The game's own 16:9 (Options, Video) is anamorphic, a squeezed picture for a widescreen TV: it reads as Normal
-//    while Expand widens, so the picture isn't widened twice.
+//    while Expand widens, so the picture isn't widened twice: in the Video menu too, and a game file saved then keeps
+//    Normal.
 // Split screen stays 4:3 (ws_ext() is 0 with more than one player), and so does Original, where every function here
 // does what the decompilation does, command for command.
 //

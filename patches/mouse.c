@@ -32,7 +32,8 @@ void bgun_swivel(f32 screenx, f32 screeny, f32 crossdamp, f32 aimdamp);
 // The motion player 1's tick took, in the PC port's units (src/mouse.cpp), until the aim or the look uses it.
 static f32 s_MouseDx;
 static f32 s_MouseDy;
-// Whether the manual aim moved the crosshair this tick, and where the mouse has it, -1 to 1 across the screen.
+// Whether the manual aim moved the crosshair this tick, and where the mouse has it, -1 to 1 across the screen (left to
+// right, top to bottom, as bgun_swivel takes it).
 static bool s_MouseAimed;
 static f32 s_SwivelPos[2];
 
@@ -70,7 +71,7 @@ RECOMP_PATCH void bgun_swivel_without_damp(f32 screenx, f32 screeny)
 	if (mouse_plays_for_current_player()
 			&& (s_MouseDx != 0 || s_MouseDy != 0 || s_SwivelPos[0] != 0 || s_SwivelPos[1] != 0)) {
 		s_SwivelPos[0] += s_MouseDx * 0.7f * (320.0f / 1080.0f) / g_Vars.currentplayer->aspect;
-		s_SwivelPos[1] -= s_MouseDy * 0.7f * (240.0f / 1080.0f);
+		s_SwivelPos[1] += s_MouseDy * 0.7f * (240.0f / 1080.0f);
 		s_SwivelPos[0] = s_SwivelPos[0] > 1 ? 1 : s_SwivelPos[0] < -1 ? -1 : s_SwivelPos[0];
 		s_SwivelPos[1] = s_SwivelPos[1] > 1 ? 1 : s_SwivelPos[1] < -1 ? -1 : s_SwivelPos[1];
 		s_MouseDx = 0;
@@ -122,7 +123,7 @@ static void mouse_tick(bool allowc1x, bool allowc1y, bool allowc1buttons)
 		// Past 0.7 of the way out, the crosshair turns the view, up to the game's own aim-turn speed.
 		f32 ex = mouse_edge(s_SwivelPos[0]) * 0.7f * fovscale * g_Vars.lvupdate60freal * 3.5f;
 		f32 ey = mouse_edge(s_SwivelPos[1]) * 0.7f * fovscale * g_Vars.lvupdate60freal * 3.5f;
-		mouse_turn(ex, -ey);
+		mouse_turn(ex, ey);
 	} else {
 		mouse_turn(s_MouseDx * fovscale * 3.5f, s_MouseDy * fovscale * 3.5f);
 	}
