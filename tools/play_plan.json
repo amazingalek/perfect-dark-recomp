@@ -17,7 +17,7 @@
  "load": [
   [
    "until",
-   "RT64: all d+ prebuilt shaders built|once the game draws",
+   "RT64: all \\d+ prebuilt shaders built|once the game draws",
    45000
   ],
   [
