@@ -6,6 +6,15 @@
 // frame says it was made at (gEXSetRefreshRate), as GoldenEye's recompilation does, so each frame's display list
 // starts with it.
 //
+// That rate is the fastest of the last three frames' (each one's retraces, diffframe60), as RT64 guesses a rate from
+// the VIs itself (VIHistory::logicalRateFromFactors), not the frame's own. A frame's interpolated frames are drawn
+// before the next frame comes, so its rate is a guess at how long it will be on screen, and the frame after a slow one
+// comes a VI later as the others do. Told the frame's own, a frame of two VIs among frames of one (a few a second in
+// a level) had RT64 plan two VIs of presents and drop half of them when the next frame came, and RT64's pacing, which
+// counts those drops as the GPU falling behind and paces to a multiple of the latest rate, held the page at 60
+// presents a second or below on a 240 Hz display in both browsers, its tries back up failing within a second
+// (N64Recomp-browser's plays.jsonl, set pd-fps). A run of slow frames still reads as their rate.
+//
 // A tick that would find no controller sample newer than the last tick's while a poll is out is put off, retrace by
 // retrace, until the sample comes, for two VIs at most. As the game is, joy_debug_joy (src/lib/joy.c) stops and
 // restarts the polling then, which takes two VIs, and the retraces queued meanwhile start the next tick before the
@@ -65,6 +74,7 @@ extern u32 var8005eec0;
 
 static bool s_TickPutOff = false;
 static u32 s_TickPutOffAt;
+static s32 s_RecentRetraces[3];
 
 RECOMP_PATCH void main_tick(void)
 {
@@ -103,9 +113,23 @@ RECOMP_PATCH void main_tick(void)
 		if (g_MainGameLogicEnabled) {
 			gdl = gdlstart = gfx_get_master_display_list();
 
-			// @recomp: the frame's rate, from the retraces it took (at least one).
-			gEXEnable(gdl++);
-			gEXSetRefreshRate(gdl++, 60 / (g_Vars.diffframe60 > 0 ? g_Vars.diffframe60 : 1));
+			// @recomp: the game's rate, from the fewest retraces of the last three frames (at least one).
+			{
+				s32 fewest = g_Vars.diffframe60 > 0 ? g_Vars.diffframe60 : 1;
+
+				s_RecentRetraces[2] = s_RecentRetraces[1];
+				s_RecentRetraces[1] = s_RecentRetraces[0];
+				s_RecentRetraces[0] = fewest;
+
+				for (i = 1; i < 3; i++) {
+					if (s_RecentRetraces[i] > 0 && s_RecentRetraces[i] < fewest) {
+						fewest = s_RecentRetraces[i];
+					}
+				}
+
+				gEXEnable(gdl++);
+				gEXSetRefreshRate(gdl++, 60 / fewest);
+			}
 			// @recomp: no interpolation across a move of the world's origin.
 			gdl = origin_tag_frame(gdl);
 
