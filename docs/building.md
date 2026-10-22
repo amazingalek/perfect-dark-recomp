@@ -276,6 +276,11 @@ Perfect Menu with the agent file loaded.
   which RT64 drops, so a level with clouds showed none. The patch draws the same polygons as 3D triangles, as the
   decompilation's PC port and GoldenEye's recompilation do. Its header says how they're kept inside the far plane, in
   a Vtx's range, at the clouds' height and in the view.
+- **The world's origin** (`patches/origin_interpolation.c`): the game draws the world relative to the room the camera
+  is in, so every matrix jumps when the camera crosses into another room, and RT64 interpolated the frames between
+  with the world shifted by part of the jump (through a door, the room beyond gone to the clear colour for a frame).
+  Each frame's display list starts with the matrix groups RT64 gives untagged matrices, with an id that changes when
+  the origin moves, so that frame is shown as it is.
 
 ### Not done yet
 
