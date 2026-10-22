@@ -48,7 +48,8 @@ the console does. They are the game's own code (`patches/`, `src/`), taken from 
   game's own 16:9 setting (a squeezed picture for a widescreen TV) reads as Normal while Expand widens, in its menu
   and in a game file saved then too.
 - **Field of view**: Joanna sees 70 to 100 degrees from the top of the screen to the bottom, where the game shows 60.
-  A gun's zoom and the Farsight magnify as much as ever; cutscenes and the menus keep the game's angle.
+  A gun's zoom and the Farsight magnify as much as ever, and the gun in her hand is drawn at the game's angle, as the
+  PC port draws it; cutscenes and the menus keep the game's angle.
 - **Mouse look and aim**: the mouse turns Joanna and tilts her view, a count turning her 0.055 degrees at 50% (the
   PC port's default), finer when zoomed. Left click fires (Z), right click aims (R): while aiming the mouse moves the
   crosshair and, near the screen's edge, turns her. The wheel changes weapon. The game's Look Ahead, which levels the
