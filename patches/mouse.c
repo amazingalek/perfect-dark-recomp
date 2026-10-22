@@ -1,15 +1,24 @@
-// Mouse look and aim, as the decompilation's PC port plays them (its port/src/input.c and src/game/bondmove.c): the
-// game's side, src/mouse.cpp the program's. Only while the mouse plays (recomp_pd_mouse_playing: Mouse Sensitivity
-// above 0% and the pointer locked to the game, src/mouse.cpp), and only for player 1; otherwise each function here is
-// the decompilation's.
-//  - Look: outside aim mode the motion turns Joanna and tilts her view, a count by 0.055 degrees at 50% (the PC port's
+// Mouse look and aim, as the decompilation's PC port plays them (its port/src/input.c and src/game/bondmove.c) and as
+// GoldenEye64Recomp-web's mouse aims: the game's side, src/mouse.cpp the program's. Only while the mouse plays
+// (recomp_pd_mouse_playing: Mouse Sensitivity above 0% and the pointer locked to the game, src/mouse.cpp), and only for
+// player 1; otherwise each function here is the decompilation's.
+//  - Look: the motion turns Joanna and tilts her view, aiming or not, a count by 0.055 degrees at 50% (the PC port's
 //    default) times the field of view over 60, so finer when zoomed. Applied after the game's input (bmove_tick) as a
-//    turn of its own, so it stays out of the stick's turn speed and the crosshair's and gun's sway that follows it.
-//  - Aim: in aim mode (R, the right button) the motion moves the crosshair (bgun_swivel_without_damp, which only the
-//    manual aim calls), and past 0.7 of the way to the screen's edge turns the view, as the PC port's "Classic" aim.
-//  - The wheel changes weapon, where and when the game's own buttons would (bmove_process_input).
+//    turn of its own, so it stays out of the stick's turn speed and the crosshair's and gun's sway that follows it. The
+//    crosshair stays where the game puts it, at the centre while she stands still, as the PC port's "Locked" mouse aim.
+//  - Aim: right click, and the keys on L and R (Left Shift), aim without the game's aim mode, in control styles 1.1 and
+//    1.2, whose L and R aim (recomp_pd_mouse_aim_held). Aim mode would stop her: the stick (W and S, the arrows) moves
+//    its crosshair instead of walking and turning her, and C-left and C-right (A and D) lean instead of strafing. So
+//    bmove_process_input doesn't see L and R (the player's joybutinhibit, as the game holds back a button still held
+//    from a menu), and what aiming wants is put back where the game decides it: the crosshair (after the game hides
+//    it), the weapon's zoom (player_tween_fov_y), no auto-aim (bmove_is_autoaim_*_enabled_for_current_weapon), and
+//    aiming to the rest of the game (bmove_is_in_sight_aim_mode: the tracking weapons' targets). A pad's L and R are
+//    still the game's aim mode, and so are the keys with the mouse off. The Aim Control option's Toggle holds it.
+//  - The wheel changes weapon, where and when the game's own buttons would (bmove_process_input), and while the mouse
+//    aims zooms the weapons that zoom (the sniper rifle, the FarSight, the horizon scanner), as C-up and C-down do in
+//    aim mode.
 //  - Look Ahead, which levels the view while she walks, is off: it would fight the mouse (bmove_set_automovecentre_enabled).
-// The buttons are src/mouse.cpp's: left is Z (fire), right is R (aim).
+// The buttons are src/mouse.cpp's: left is Z (fire), right is R (aim, and the menus' shoulder button).
 
 #include "patches.h"
 #include "game/bondmove.h"
@@ -20,6 +29,9 @@
 #include "game/bondgun.h"
 #include "game/footstep.h"
 #include "game/gset.h"
+#include "game/options.h"
+#include "game/player.h"
+#include "lib/joy.h"
 #include "lib/snd.h"
 #include "lib/vi.h"
 #include "bss.h"
@@ -27,32 +39,59 @@
 
 s32 bwalk_try_delta(struct coord *delta, f32 rotateamount, bool apply, f32 extrawidth, s32 types);
 void bmove_process_input(bool allowc1x, bool allowc1y, bool allowc1buttons, bool ignorec2);
-void bgun_swivel(f32 screenx, f32 screeny, f32 crossdamp, f32 aimdamp);
+bool bmove_is_autoaim_x_enabled(void);
+bool bmove_is_autoaim_y_enabled(void);
+f32 player_get_zoom_fov_y(void);
+void player_set_zoom_fov_y(f32 fovy, f32 timemax);
 
-// The motion player 1's tick took, in the PC port's units (src/mouse.cpp), until the aim or the look uses it.
+// The motion player 1's tick took, in the PC port's units (src/mouse.cpp), until the look uses it.
 static f32 s_MouseDx;
 static f32 s_MouseDy;
-// Whether the manual aim moved the crosshair this tick, and where the mouse has it, -1 to 1 across the screen (left to
-// right, top to bottom, as bgun_swivel takes it).
-static bool s_MouseAimed;
-static f32 s_SwivelPos[2];
+// Whether the mouse aims this tick, and whether its aim was held the tick before (for Toggle).
+static bool s_MouseAiming;
+static bool s_MouseAimWasHeld;
 
 static bool mouse_plays_for_current_player(void)
 {
 	return g_Vars.currentplayernum == 0 && recomp_pd_mouse_playing();
 }
 
-// From the edge's 0.7 to the edge itself, 0 to 1, signed.
-static f32 mouse_edge(f32 pos)
+static bool mouse_aiming(void)
 {
-	f32 e = (pos < 0 ? -pos : pos) - 0.7f;
+	return g_Vars.currentplayernum == 0 && s_MouseAiming;
+}
 
-	if (e <= 0) {
-		return 0;
+// Before bmove_process_input: whether the mouse aims this tick, and while it does, the game's aim buttons held back
+// from it.
+static void mouse_aim_update(bool allowc1buttons)
+{
+	struct player *player = g_Vars.currentplayer;
+	s32 mpindex = g_Vars.currentplayerstats->mpindex;
+	s32 controlmode = options_get_control_mode(mpindex);
+	bool held;
+
+	if ((controlmode != CONTROLMODE_11 && controlmode != CONTROLMODE_12)
+			|| player->bondmovemode != MOVEMODE_WALK || player->isdead || player->pausemode != PAUSEMODE_UNPAUSED) {
+		s_MouseAiming = false;
+		s_MouseAimWasHeld = false;
+		return;
 	}
 
-	e /= 0.3f;
-	return pos < 0 ? -e : e;
+	held = allowc1buttons && recomp_pd_mouse_aim_held();
+
+	if (options_get_aim_control(mpindex) == AIMCONTROL_HOLD) {
+		s_MouseAiming = held;
+	} else if (held && !s_MouseAimWasHeld) {
+		s_MouseAiming = !s_MouseAiming;
+	}
+
+	s_MouseAimWasHeld = held;
+
+	if (held || s_MouseAiming) {
+		// The game lets go of a held-back button once it is released, so this holds L and R back only while held.
+		player->joybutinhibit |= L_TRIG | R_TRIG;
+		player->insightaimmode = false;
+	}
 }
 
 RECOMP_PATCH void bmove_set_automovecentre_enabled(bool enabled)
@@ -61,30 +100,71 @@ RECOMP_PATCH void bmove_set_automovecentre_enabled(bool enabled)
 	g_Vars.currentplayer->automovecentreenabled = enabled && !recomp_pd_mouse_playing();
 }
 
-RECOMP_PATCH void bgun_swivel_without_damp(f32 screenx, f32 screeny)
+RECOMP_PATCH bool bmove_is_in_sight_aim_mode(void)
 {
-	struct weapondef *weapon;
-	f32 aimdamp;
+	// @recomp: the mouse's aim is aiming too.
+	return g_Vars.currentplayer->insightaimmode || mouse_aiming();
+}
 
-	// @recomp: while the mouse plays, the crosshair goes where it has moved it, once it has moved or as long as it is
-	// off the centre.
-	if (mouse_plays_for_current_player()
-			&& (s_MouseDx != 0 || s_MouseDy != 0 || s_SwivelPos[0] != 0 || s_SwivelPos[1] != 0)) {
-		s_SwivelPos[0] += s_MouseDx * 0.7f * (320.0f / 1080.0f) / g_Vars.currentplayer->aspect;
-		s_SwivelPos[1] += s_MouseDy * 0.7f * (240.0f / 1080.0f);
-		s_SwivelPos[0] = s_SwivelPos[0] > 1 ? 1 : s_SwivelPos[0] < -1 ? -1 : s_SwivelPos[0];
-		s_SwivelPos[1] = s_SwivelPos[1] > 1 ? 1 : s_SwivelPos[1] < -1 ? -1 : s_SwivelPos[1];
-		s_MouseDx = 0;
-		s_MouseDy = 0;
-		s_MouseAimed = true;
-		bgun_swivel_with_damp(s_SwivelPos[0], s_SwivelPos[1], 0.01f);
-		return;
+RECOMP_PATCH bool bmove_is_autoaim_y_enabled_for_current_weapon(void)
+{
+	struct funcdef *func = gset_get_current_funcdef(0);
+
+	// @recomp: no auto-aim while the mouse aims, as in aim mode.
+	if (mouse_aiming()) {
+		return false;
 	}
 
-	weapon = gset_get_weapondef(bgun_get_weapon_num(HAND_RIGHT));
-	aimdamp = PAL ? weapon->aimsettings->aimdamppal : weapon->aimsettings->aimdamp;
+	if (func) {
+		if (func->flags & FUNCFLAG_NOAUTOAIM) {
+			return false;
+		}
 
-	bgun_swivel(screenx, screeny, PAL ? 0.935f : 0.945f, aimdamp);
+		if ((func->type & 0xff) == INVENTORYFUNCTYPE_MELEE) {
+			return true;
+		}
+	}
+
+	return bmove_is_autoaim_y_enabled();
+}
+
+RECOMP_PATCH bool bmove_is_autoaim_x_enabled_for_current_weapon(void)
+{
+	struct funcdef *func = gset_get_current_funcdef(0);
+
+	// @recomp: no auto-aim while the mouse aims, as in aim mode.
+	if (mouse_aiming()) {
+		return false;
+	}
+
+	if (func) {
+		if (func->flags & FUNCFLAG_NOAUTOAIM) {
+			return false;
+		}
+
+		if ((func->type & 0xff) == INVENTORYFUNCTYPE_MELEE) {
+			return true;
+		}
+	}
+
+	return bmove_is_autoaim_x_enabled();
+}
+
+RECOMP_PATCH void player_tween_fov_y(f32 targetfovy)
+{
+	// @recomp: outside aim mode bmove_process_input asks for 60; while the mouse aims, for the weapon's zoom, as in aim
+	// mode.
+	if (targetfovy == 60 && mouse_aiming() && gset_get_gun_zoom_fov() > 0) {
+		targetfovy = gset_get_gun_zoom_fov();
+	}
+
+	if (player_get_zoom_fov_y() != targetfovy) {
+		if (g_Vars.currentplayer->zoominfovy > targetfovy) {
+			player_set_zoom_fov_y(targetfovy, (g_Vars.currentplayer->zoominfovy - targetfovy) * 15.0f / 30.0f);
+		} else {
+			player_set_zoom_fov_y(targetfovy, (targetfovy - g_Vars.currentplayer->zoominfovy) * 15.0f / 30.0f);
+		}
+	}
 }
 
 // Turns the view by degrees, as bwalk_update_theta turns it by the stick's speed, and tilts it.
@@ -109,27 +189,34 @@ static void mouse_tick(bool allowc1x, bool allowc1y, bool allowc1buttons)
 	f32 fovscale = vi_get_fov_y() / 60.0f;
 	s32 wheel = 0;
 
-	if (!s_MouseAimed) {
-		s_SwivelPos[0] = 0;
-		s_SwivelPos[1] = 0;
-	}
-
 	if (player->bondmovemode != MOVEMODE_WALK || player->isdead || player->pausemode != PAUSEMODE_UNPAUSED
 			|| !(allowc1x && allowc1y)) {
 		return;
 	}
 
-	if (s_MouseAimed) {
-		// Past 0.7 of the way out, the crosshair turns the view, up to the game's own aim-turn speed.
-		f32 ex = mouse_edge(s_SwivelPos[0]) * 0.7f * fovscale * g_Vars.lvupdate60freal * 3.5f;
-		f32 ey = mouse_edge(s_SwivelPos[1]) * 0.7f * fovscale * g_Vars.lvupdate60freal * 3.5f;
-		mouse_turn(ex, ey);
-	} else {
-		mouse_turn(s_MouseDx * fovscale * 3.5f, s_MouseDy * fovscale * 3.5f);
+	mouse_turn(s_MouseDx * fovscale * 3.5f, s_MouseDy * fovscale * 3.5f);
+
+	if (s_MouseAiming) {
+		// bmove_process_input hid the crosshair outside aim mode.
+		bgun_set_sight_visible(GUNSIGHTREASON_NOTAIMING, true);
 	}
 
 	if (allowc1buttons && g_Vars.tickmode != TICKMODE_CUTSCENE && g_Vars.lvframenum >= 10) {
 		wheel = recomp_pd_mouse_take_wheel();
+
+		if (s_MouseAiming && gset_has_aim_flag(bgun_get_weapon_num(HAND_RIGHT), INVAIMFLAG_MANUALZOOM)) {
+			// A notch zooms as C-up or C-down held for 10 60ths of a second in aim mode do, by a fifth, so about fifteen
+			// cover the sniper rifle's 60 to 2 degrees.
+			f32 notch = g_Vars.lvupdate60freal > 0 ? 10.0f / g_Vars.lvupdate60freal : 0;
+
+			for (; wheel > 0; wheel--) {
+				gset_zoom_in(notch);
+			}
+
+			for (; wheel < 0; wheel++) {
+				gset_zoom_out(notch);
+			}
+		}
 
 		while (wheel > 0) {
 			bgun_cycle_back();
@@ -154,22 +241,22 @@ RECOMP_PATCH void bmove_tick(bool allowc1x, bool allowc1y, bool allowc1buttons, 
 	f32 distance;
 	bool mouse = mouse_plays_for_current_player();
 
-	// @recomp: the mouse's motion since player 1's last tick, for the aim (bgun_swivel_without_damp) and the look.
+	// @recomp: the mouse's motion since player 1's last tick, for the look, and whether it aims.
 	s_MouseDx = 0;
 	s_MouseDy = 0;
-	s_MouseAimed = false;
 
 	if (mouse) {
 		recomp_pd_mouse_take(&s_MouseDx, &s_MouseDy);
+		mouse_aim_update(allowc1buttons);
+	} else if (g_Vars.currentplayernum == 0) {
+		s_MouseAiming = false;
+		s_MouseAimWasHeld = false;
 	}
 
 	bmove_process_input(allowc1x, allowc1y, allowc1buttons, ignorec2);
 
 	if (mouse) {
 		mouse_tick(allowc1x, allowc1y, allowc1buttons);
-	} else if (g_Vars.currentplayernum == 0) {
-		s_SwivelPos[0] = 0;
-		s_SwivelPos[1] = 0;
 	}
 
 	if (g_Vars.currentplayer->bondmovemode == MOVEMODE_BIKE) {
