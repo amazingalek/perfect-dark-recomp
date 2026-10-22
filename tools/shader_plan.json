@@ -18,8 +18,8 @@
   "end screen), Combat Simulator, the Carrington Institute, and what a mission draws further in than its start (RT64",
   "builds those when the game first asks for them). Flags follow settings (filtering, HDR, MSAA, upscaling), so a",
   "change to one of those defaults means recording again.",
-  "Added by hand at the end of their level's section: the shaders the page's play plans then missed in Chrome",
-  "(Defection 6, Villa 3), drawn by what a level's start doesn't show. A new recording drops them unless they are added",
+  "Added by hand at the end of their level's section: the shaders the page's play plans then missed",
+  "(Defection 15, 9 of them as it starts in Firefox alone; Villa 3). A new recording drops them unless they are added",
   "again."
  ],
  "load": [

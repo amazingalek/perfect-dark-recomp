@@ -15,8 +15,8 @@
 # end screen), Combat Simulator, the Carrington Institute, and what a mission draws further in than its start (RT64
 # builds those when the game first asks for them). Flags follow settings (filtering, HDR, MSAA, upscaling), so a
 # change to one of those defaults means recording again.
-# Added by hand at the end of their level's section: the shaders the page's play plans then missed in Chrome
-# (Defection 6, Villa 3), drawn by what a level's start doesn't show. A new recording drops them unless they are added
+# Added by hand at the end of their level's section: the shaders the page's play plans then missed
+# (Defection 15, 9 of them as it starts in Firefox alone; Villa 3). A new recording drops them unless they are added
 # again.
 00504240 0080eccf fcff97ff ff2dfeff 04cb540b
 00504240 0089ec4f fcffffff fffdf6fb 1cc9540b
@@ -149,6 +149,15 @@ c41049d8 0099ac4f fc26a004 1f1093fb 188e0008
 00504240 00882ccf fcffffff fffe793c 08000008
 00504240 0089ec4f fcffffff fffe793c 1cc95408
 c4112078 0099ac4f fc26a004 1f1093fb 1ccf540c
+0c192078 0099ac0f fc26a004 1f1093ff 1807540c
+0c192078 0099ac0f fc26a004 1f1093ff 188e000c
+0c192078 0099ac0f fc26a004 1f1093ff 1806440c
+0c192078 0099ac0f fc26a004 1f1093ff 1806008c
+0c192078 00992c0f fc26a004 1f1093ff 188e000c
+0c192078 0099ac0f fc26a004 1f1093ff 1a26220c
+0c192078 0099ac0f fc26a004 1f1093ff 1ccf540c
+0c1849d8 0098ac0f fc26a004 1f1093ff 088e000c
+005041c8 00892c4f fcffffff fffe793c 18880008
 section investigation
 c4112078 0099ac0f fc159804 5ffedbf8 1802440c
 c4112078 0098ac0f fc159804 5ffedbf8 0803540c
