@@ -89,8 +89,9 @@ every thread, in headless Chrome on a desktop GPU unless a line says otherwise:
   the last tick's (`joy_debug_joy`, `src/lib/joy.c`) stops and restarts the controller polling to read one, and the
   scheduler answers each of those at its next retrace (`joys_handle_retrace`): the tick takes two VIs, and the poll it
   restarted has its sample only at the VI after. The retraces queued meanwhile start the next tick as soon as this one
-  ends, before that VI, so it finds no sample either. Once a tick misses, the ticks after it miss too, for as long as a tick's work
-  after its controller read is shorter than a VI, as it is on a fast CPU; on a console the game draws at 15-30.
+  ends, before that VI, so it finds no sample either. Once a tick misses, the ticks after it miss too, for as long as
+  a tick's work after its controller read is shorter than a VI, as it is on a fast CPU; on a console the game draws
+  at 15-30.
 - That chain, measured on the desktop build in Defection (patches that count ticks and the messages queued at each,
   and a switch flipped in memory, 20 s each way in turn, twice, on an idle host through Dozen): as the game is, 36-38
   frames a second, 411-451 of 710-753 ticks found no new sample, as many as took two VIs, and a tick started with

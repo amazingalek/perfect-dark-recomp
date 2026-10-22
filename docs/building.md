@@ -189,9 +189,9 @@ so nothing in the game runs too fast and no fix for a rate above the console's i
 rate (`patches/frame_rate.c`), and RT64 interpolates to the display's. Frames take two VIs, even in a menu that draws
 little, because of the game's own controller reads: a tick that finds no new sample restarts the controller
 polling (`joy_debug_joy`, `joy.c`), which takes two VIs, and the retraces queued meanwhile start the next tick before
-the next sample, so the ticks after it miss too. Measured here in Defection, with patches counting ticks: as many ticks found no
-sample as took two VIs, and with such a tick put off to the next retrace the game drew 58-60 ([web.md](web.md), Frame
-rate).
+the next sample, so the ticks after it miss too. Measured here in Defection, with patches counting ticks: as many
+ticks found no sample as took two VIs, and with such a tick put off to the next retrace the game drew 58-60
+([web.md](web.md), Frame rate).
 
 ### What the build needs that isn't obvious
 
