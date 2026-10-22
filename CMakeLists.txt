@@ -201,6 +201,7 @@ add_executable(PerfectDarkRecompiled)
 target_sources(PerfectDarkRecompiled PRIVATE
     ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/config.cpp
+    ${CMAKE_SOURCE_DIR}/src/mouse.cpp
     ${CMAKE_SOURCE_DIR}/src/register_overlays.cpp
     ${CMAKE_SOURCE_DIR}/src/pd_natives.cpp
     ${CMAKE_SOURCE_DIR}/src/pd_libultra.cpp

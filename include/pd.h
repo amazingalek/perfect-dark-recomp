@@ -4,6 +4,7 @@
 #include <string_view>
 
 #include "recomp.h"
+#include "librecomp/config.hpp"
 
 namespace pd {
     inline constexpr std::u8string_view program_id = u8"PerfectDarkRecompiled";
@@ -14,6 +15,13 @@ namespace pd {
     void register_overlays();
     void register_patches();
     void init_config();
+
+    // Mouse look and aim (src/mouse.cpp): the keyboard's default bindings and the event watch, called before the
+    // config's tabs are made; the Mouse Sensitivity option, added to the General tab; and the controller callback,
+    // which adds the mouse's buttons to controller 1.
+    void init_mouse();
+    void add_mouse_option(recomp::config::Config& general);
+    bool get_input(int controller_num, uint16_t* buttons_out, float* x_out, float* y_out);
 
     // The game entry's on_init_callback (src/register_overlays.cpp): before the preamble runs, every code section at
     // the address the relink links it at, and the values IPL3 leaves in low RAM that the runtime doesn't.

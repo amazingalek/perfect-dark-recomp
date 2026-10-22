@@ -25,5 +25,16 @@ void recomp_pd_crash(const char *message);
 void recomp_pd_read_rom(u32 offset, u32 *dst);
 // The runtime's osMotorInit: 0 when a Rumble Pak is in the controller, which then rumbles through the runtime.
 s32 recomp_pd_motor_init(OSMesgQueue *mq, OSPfs *pfs, s32 channel);
+// Whether the mouse plays (src/mouse.cpp): Mouse Sensitivity above 0% and the pointer locked to the game.
+s32 recomp_pd_mouse_playing(void);
+// The mouse's motion since the last take, in the PC port's units, right and down positive.
+void recomp_pd_mouse_take(f32 *dx, f32 *dy);
+// The wheel's notches since the last take, up positive.
+s32 recomp_pd_mouse_take_wheel(void);
+// Field of View (src/config.cpp): the angle the player's view is drawn with for one the game sets, in degrees.
+f32 recomp_pd_widen_fov(f32 fovy);
+// Aspect Ratio (src/config.cpp): the window's width over its height with Expand, at least the one given; with Original
+// the one given.
+f32 recomp_pd_get_aspect_ratio(f32 original);
 
 #endif

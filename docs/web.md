@@ -51,6 +51,17 @@ does nothing unless a script asks.
 starts *dataDyne Central - Defection* on Agent, skips its opening cutscene and plays a minute of the game's time in it:
 walking, strafing, turning, firing and aiming. `tools/play_plan_extended.json` (about 4 minutes) plays Defection,
 then *Villa* and *Chicago*. Play them with N64Recomp-browser's `tools/play_page.mjs` (its `docs/playing.md`).
+They press the keyboard's defaults (`src/mouse.cpp`): W and S walk, A and D strafe, the arrows turn.
+
+## The enhancements
+
+The page has the desktop program's options with the same defaults (README, Modern enhancements): Aspect Ratio Expand
+with the game drawing to the window's edges, HUD Placement 16:9, Field of View Original, Mouse Sensitivity 50%. They
+cost the page nothing measurable: in headless Chrome at 1256x645 on a desktop GPU, uncapped, the regular plan
+presented 341.6 and 345.2 a second against 333.3 and 340.4 for the page without them, interleaved (N64Recomp-browser's
+`plays.jsonl`, set `pd-ws1`), the GPU as busy, no shader missed. With Mouse Sensitivity above 0% the page asks for
+pointer lock as the game starts, which headless Chrome refuses (`WrongDocumentError`, an exception in the play's
+report). The mouse in a player's browser, headed, hasn't been played.
 
 ## The shader list
 
