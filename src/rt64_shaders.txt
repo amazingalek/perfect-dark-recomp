@@ -21,7 +21,8 @@
 # and plays of a route through 12 of them that turns, strafes, fires and aims then missed (28 in five: G5 Building 13,
 # 5 of them Firefox's alone and 8 Chrome's; Air Base 5, 4 of them Firefox's alone; Crash Site 4, Defense 5, Skedar
 # Ruins 1), and the same route then missed 2 more in Air Base from Pages, and the boot as it plays by itself
-# for 45 s (publish_pages.sh's boot check) 3, and Firefox as the intro's Defection loads 1.
+# for 45 s (publish_pages.sh's boot check) 3, Firefox as the intro's Defection loads 1, and Firefox in Skedar Ruins
+# on the route 1.
 # A new recording drops them unless they are added again.
 00504240 0080eccf fcff97ff ff2dfeff 04cb540b
 00504240 0089ec4f fcffffff fffdf6fb 1cc9540b
@@ -1389,6 +1390,7 @@ c41049d8 0099acff fc159a04 5ffefff8 188a000c
 00504b50 00882cbf fc121824 ff33ffff 088a0008
 c4112078 0099ac4f fc159804 5ffedbf8 18020088
 0c1849d8 0099ac7f fc26a004 1f1093ff 1ccf540c
+c41049d8 0099ac4f fc159a04 5ffefff8 1802008c
 section mbr
 00502048 00882c0f fc127e24 fffff9fc 0803540c
 c4112078 0099ac0f fc159804 5ffedbf8 18035408
