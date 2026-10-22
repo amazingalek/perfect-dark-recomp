@@ -19,6 +19,13 @@
 // g_SchedArtifactsWithDualBuffers, whether a list's samples were taken, is 3 bytes followed by a word,
 // g_SchedWriteArtifactsIndex (0x8008FA68 and 0x8008FA6C, syms/data_dump.toml), so its fourth byte is padding, which
 // zbuf_save_artifact_depths and sched_update_pending_artifacts use for the fourth list as they are.
+//
+// A list's flag is set where its samples are taken, with the gun drawn, which also turns each of its glares' screen
+// position into a pointer to its sample (struct artifact's union), and cleared when the scheduler has read the list. A
+// level's reset finds the list the RDP finished last not read yet, since the pending index is a list behind, and the
+// flag it leaves set says a list written again in the new level without the gun (G5 Building's opening cutscene, by its
+// lights) has samples: the scheduler read its screen positions as pointers, outside RDRAM, and the page trapped. So the
+// reset clears the flags too: they are the level before's.
 
 #include "patches.h"
 #include "bss.h"
@@ -31,7 +38,8 @@ extern u16 g_ArtifactDepths1[384];
 extern u16 g_ArtifactDepths2[384];
 
 static struct artifact s_ArtifactList3[MAX_ARTIFACTS];
-static u16 s_ArtifactDepths3[384];
+// Aligned as zbuf_get_artifacts_depth_samples rounds a buffer's start, so that all of it holds samples.
+static u16 s_ArtifactDepths3[384] __attribute__((aligned(64)));
 
 static s32 artifacts_num_lists(void)
 {
@@ -92,7 +100,18 @@ RECOMP_PATCH void sched_reset_artifacts(void)
 {
 	g_SchedWriteArtifactsIndex = 0;
 	g_SchedFrontArtifactsIndex = 1;
-	g_SchedPendingArtifactsIndex = recomp_pd_render_to_ram_late() ? 3 : 0;
+	g_SchedPendingArtifactsIndex = 0;
+
+	if (recomp_pd_render_to_ram_late()) {
+		u8 *withdualbuffers = g_SchedArtifactsWithDualBuffers;
+		s32 i;
+
+		g_SchedPendingArtifactsIndex = 3;
+
+		for (i = 0; i < 4; i++) {
+			withdualbuffers[i] = false;
+		}
+	}
 }
 
 RECOMP_PATCH u16 *zbuf_get_artifacts_depth_samples(s32 index)
