@@ -9,10 +9,11 @@
 //    planes rooms and weather are tested against (cam0f0b5838) reach that far, and a little further, since the
 //    window's width in the game's pixels is a few off from RT64's (RT64 rounds the frame's height it reads from the
 //    VI to a multiple of 4).
-//  - Scissors: a room's, prop's or character's scissor (bg_scissor_within_viewport) is clamped to the wider view and
-//    given in RT64's units for a widened projection, where the frame's own 0 to width span the window, with a few
-//    pixels to spare. A scissor stays inside the frame's own 0 to width: one past it would make RT64 judge the frame
-//    not to be 4:3 and widen nothing.
+//  - Scissors: a room's, prop's or character's scissor (bg_scissor_within_viewport) spans the frame's whole width,
+//    as GoldenEye's recompilation does its own: RT64 widens a projection only where its scissor spans the frame's, so
+//    a room seen through a door, scissored to the door, was drawn at 4:3 and cut at the 4:3 edge. The z-buffer still
+//    hides what the scissor did. A scissor wider than the frame would make RT64 judge the frame not to be 4:3 and
+//    widen nothing.
 //  - HUD: the mission timer and the left-aligned HUD messages go to the window's left edge, the ammo, the
 //    right-aligned messages and the radar to its right, through RT64's rectangle alignment and, for a message's box
 //    (triangles), its viewport alignment, inside a scissor as wide as the window. HUD Placement (RecompFrontend) then
@@ -114,15 +115,6 @@ static f32 ws_cull_ext(void)
 	f32 ext = ws_ext();
 
 	return ext > 0.0f ? ext + ws_slack() : 0.0f;
-}
-
-// An x in the frame's pixels, as far as ext past either edge, in RT64's units for a widened projection, where 0 and
-// the frame's width are the window's edges.
-static f32 ws_to_window(f32 x, f32 ext)
-{
-	f32 width = vi_get_width();
-
-	return width * 0.5f + (x - width * 0.5f) * width / (width + 2.0f * ext);
 }
 
 // Starts HUD drawn at a side of the window (G_EX_ORIGIN_LEFT or G_EX_ORIGIN_RIGHT): a scissor as wide as the window
@@ -273,50 +265,10 @@ RECOMP_PATCH void cam0f0b5838(void)
 	var8009dd6c = mtx->m[2][0] * mtx->m[3][0] + mtx->m[2][1] * mtx->m[3][1] + mtx->m[2][2] * mtx->m[3][2];
 }
 
-RECOMP_PATCH Gfx *bg_scissor_to_viewport(Gfx *gdl)
-{
-	// @recomp: the view as wide as the window.
-	s32 ext = ws_ext() > 0.0f ? vi_get_width() : 0;
-
-	return bg_scissor_within_viewport(gdl,
-			g_Vars.currentplayer->viewleft - ext,
-			g_Vars.currentplayer->viewtop,
-			g_Vars.currentplayer->viewleft + g_Vars.currentplayer->viewwidth + ext,
-			g_Vars.currentplayer->viewtop + g_Vars.currentplayer->viewheight);
-}
-
 RECOMP_PATCH Gfx *bg_scissor_within_viewport(Gfx *gdl, s32 viewleft, s32 viewtop, s32 viewright, s32 viewbottom)
 {
-	// @recomp: clamped to the view as wide as the window, and in RT64's units for a widened projection.
-	f32 ext = ws_ext();
-
-	if (ext > 0.0f) {
-		f32 width = vi_get_width();
-		f32 slack = ws_slack();
-		f32 left = viewleft;
-		f32 right = viewright;
-		f32 minx = g_Vars.currentplayer->viewleft - ext;
-		f32 maxx = g_Vars.currentplayer->viewleft + g_Vars.currentplayer->viewwidth + ext;
-
-		if (left < minx) {
-			left = minx;
-		}
-
-		if (right > maxx) {
-			right = maxx;
-		}
-
-		left = left <= minx ? 0.0f : ws_to_window(left, ext) - slack;
-		right = right >= maxx ? width : ws_to_window(right, ext) + slack;
-
-		if (left < 0.0f) {
-			left = 0.0f;
-		}
-
-		if (right > width) {
-			right = width;
-		}
-
+	// @recomp: as wide as the frame while Expand widens, so RT64 widens what it scissors.
+	if (ws_ext() > 0.0f) {
 		if (viewtop < g_Vars.currentplayer->viewtop) {
 			viewtop = g_Vars.currentplayer->viewtop;
 		}
@@ -325,7 +277,8 @@ RECOMP_PATCH Gfx *bg_scissor_within_viewport(Gfx *gdl, s32 viewleft, s32 viewtop
 			viewbottom = g_Vars.currentplayer->viewtop + g_Vars.currentplayer->viewheight;
 		}
 
-		gDPSetScissorFrac(gdl++, G_SC_NON_INTERLACE, (s32) (left * 4.0f), viewtop * 4, (s32) (right * 4.0f), viewbottom * 4);
+		gDPSetScissor(gdl++, G_SC_NON_INTERLACE, g_Vars.currentplayer->viewleft, viewtop,
+				g_Vars.currentplayer->viewleft + g_Vars.currentplayer->viewwidth, viewbottom);
 
 		return gdl;
 	}
