@@ -183,15 +183,15 @@ other levels draw too (`patches/sky.c`), seen in Villa's and Chicago's intros an
 by setting `g_MainChangeToStageNum` while the game ran. rt64#198's flicker hasn't been seen.
 
 The frame rate, from `g_Vars` read while it runs (`thisframestartt` per frame, `diffframe60` its VIs, `lvframe240`
-the game's clock), with the host idle, is 57-60 a second in the levels, every frame one VI: Defection 59.9,
-Investigation 59.6, Chicago 56.9, the menus 41-60. The game counts each frame's length in VIs and its clock keeps to
-real time, so nothing in the game runs too fast and no fix for a rate above the console's is needed. Each frame tells
-RT64 its rate (`patches/frame_rate.c`), and RT64 interpolates to the display's. As the game is, frames take two VIs,
-even in a menu that draws little, because of its own controller reads: a tick that finds no new sample restarts the
-controller polling (`joy_debug_joy`, `joy.c`), which takes two VIs, and the retraces queued meanwhile start the next
-tick before the next sample, so the ticks after it miss too. `patches/frame_rate.c` puts such a tick off to the next
-retrace, where the poll that is out has its sample; without it the same play draws Defection at 37.1, Investigation
-at 29.0 and Chicago at 47.0 ([web.md](web.md), Frame rate).
+the game's clock), with the host idle, is 59-60 a second in the levels by the game's own clock, every frame one VI:
+Defection 59.9, Investigation 60.0, Chicago 59.2, the menus 58-60. The game counts each frame's length in VIs and its
+clock keeps to real time, so nothing in the game runs too fast and no fix for a rate above the console's is needed.
+Each frame tells RT64 its rate (`patches/frame_rate.c`), and RT64 interpolates to the display's. As the game is, frames
+take two VIs, even in a menu that draws little, because of its own controller reads: a tick that finds no new sample
+restarts the controller polling (`joy_debug_joy`, `joy.c`), which takes two VIs, and the retraces queued meanwhile
+start the next tick before the next sample, so the ticks after it miss too. `patches/frame_rate.c` puts such a tick off
+until the poll that is out has its sample, at the next VI; without it the same play draws Defection at 38.4,
+Investigation at 30.0 and Chicago at 48.8 ([web.md](web.md), Frame rate).
 
 ### What the build needs that isn't obvious
 

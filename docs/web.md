@@ -98,17 +98,26 @@ scheduler (`g_Sched`, `g_MainNumGfxTasks`) a few milliseconds at a time and from
   frames a second, 411-451 of 710-753 ticks found no new sample, as many as took two VIs, and a tick started with
   1.1-1.3 retraces already queued. With a tick that finds no sample while a poll is out put off to the next retrace,
   58-60, every frame one VI, no tick without a sample or with a retrace queued.
-- So `patches/frame_rate.c` puts such a tick off to the next retrace, once (its header says why there and not by
-  draining the queued retraces). The desktop build with it, beside the build without it, each started and driven the
-  same way on an idle host through Dozen, 20 s a level reached through the survey: Defection 59.9 frames a second
-  (37.1 without), Investigation 59.6 (29.0), Chicago 56.9 (47.0), every frame one VI but 1-3 in 20 s; the file menu
-  54.4 and 41.0 in two runs (37.9), the next menu 60.0 (55.3). The game's clock (`lvframe240`) kept to `osGetCount`'s
-  in both. Frames a second here are counted by the script's clock, which `osGetCount` ran behind by up to 4% in some
-  windows, in either build: where it did, a frame was still one VI by the game's clock. The title's attract sequence
-  draws 60 in its scenes either way, with frames of 8-10 VIs as a scene changes in both. Walking and turning read the
-  keys as before. With polling stopped (a pak's menu) no poll is out, so the game restarts it as it always has: that is
-  from the code, as no pak's menu was played.
-- Render to RAM's late copy (`src/main.cpp`) is not what holds a level at 30: a page whose display lists go ahead with
+- So `patches/frame_rate.c` puts such a tick off, retrace by retrace, until the poll's sample comes, two VIs at most
+  (its header says why there and not by draining the queued retraces). Put off only once, the desktop build drew
+  57-60 but the page fell back to 30 for 10-20 s at a time: a slow frame starts the chain with two or more retraces
+  queued. The desktop build with it, beside the build without it, each started and driven the same way on an idle
+  host through Dozen, 20 s a level reached through the survey, frames a second by the game's own clock
+  (`osGetCount`, which the script's ran ahead of by up to 5% in some windows, in either build): Defection 59.9 (38.4
+  without), Investigation 60.0 (30.0), Chicago 59.2 (48.8), every frame one VI but 1-4 in 20 s; the file menu 58
+  (38), the next menu 60 in both. The game's clock (`lvframe240`) keeps to `osGetCount`'s in both. The title's
+  attract sequence draws 60 in its scenes either way, with frames of 8-10 VIs as a scene changes in both. Walking and
+  turning read the keys as before. With polling stopped (a pak's menu) no poll is out, so the game restarts it as it
+  always has: that is from the code, as no pak's menu was played.
+- The page, in headless Chrome at 1256x645 on a desktop GPU, the regular plan uncapped, interleaved with the page
+  without the patch (base, new, new, base, whole GPU turns on an idle host; N64Recomp-browser's `plays.jsonl`, set
+  `pd-tick2`), its game's frames counted from `g_Vars.thisframestart240` by N64Recomp-browser's
+  `tools/frame_lengths.js`: the boot and menus 57-59 a second in both, every frame about one VI; in Defection 57-59 for
+  most of the minute, 38-50 in the plan's firing, against 30 throughout for the page without it, every frame two VIs
+  (one of its plays had a 10 s stretch at 57-59, the chain broken by slow lists). Presents 343.6 and 342.6 a second
+  against 326.3 and 338.3, held by the uncapped rate (360) in all four, no WebGPU errors, no sound short, no shader
+  missed.
+- Render to RAM's late copy (`src/main.cpp`) is not what held a level at 30: a page whose display lists go ahead with
   the previous copy still pending draws Defection at 29-31 like this one, capped and uncapped, and a Chrome trace of
   30 s there has RT64's Gfx thread idle 90% and the game's main thread all in `joy_debug_joy`, waiting in `osRecvMesg`
   for the scheduler's retraces (N64Recomp-browser's docs/findings.md, Ruled out, measured). Lists that run slow break
@@ -116,10 +125,10 @@ scheduler (`g_Sched`, `g_MainNumGfxTasks`) a few milliseconds at a time and from
   VI with its sample. That fits the 55-60 of the first capped plays, without the prebuilt shader list, 18 frames in
   20 VIs at Defection's start. The CPU wrote to no framebuffer with a late copy pending in the shader recording's 21
   levels or in the plays.
-- Beside GoldenEye's page from Pages, the regular plans played in turn uncapped, two of each, on an idle host: GoldenEye
-  358 and 347 presents a second, held by the uncapped rate (360), and Perfect Dark 340 and 329, with no WebGPU errors
-  and no short sound in either. A present is RT64's interpolated frame, so at 30 frames of the game a second in a level
-  Perfect Dark's page still presents near the rate its display allows.
+- Beside GoldenEye's page from Pages, before the patch, the regular plans played in turn uncapped, two of each, on an
+  idle host: GoldenEye 358 and 347 presents a second, held by the uncapped rate (360), and Perfect Dark 340 and 329,
+  with no WebGPU errors and no short sound in either. A present is RT64's interpolated frame, so even at 30 frames of
+  the game a second Perfect Dark's page presented near the rate its display allows.
 
 `frametime_calculate` (`src/game/timing.c`) spins on `osGetCount` with no call that lets another thread run, but the
 main loop's half-frame wait before a tick leaves it little to spin: in the logos 66 of 599 calls spun, 9.7 ms in 10 s

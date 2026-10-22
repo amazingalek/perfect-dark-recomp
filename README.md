@@ -13,7 +13,7 @@ at `lib/perfect_dark`. It is not an emulator and it contains no game data: you s
 **Status: the desktop build plays a mission.** On Linux, with a desktop GPU (through Mesa's Dozen on WSL2),
 *dataDyne Central - Defection* plays from its briefing to its end screen on Agent, with sound. The game's menus work:
 the agent file, the Perfect Menu, mission select, the briefing, retry and next mission. A save survives a restart: the
-agent file, the completed mission and the next one it unlocks. The game draws 57-60 frames a second in its levels,
+agent file, the completed mission and the next one it unlocks. The game draws 59-60 frames a second in its levels,
 every frame one VI, with its clock at real time, where its own controller reads held it to 30 (a patch puts off the
 tick that would restart them, [docs/web.md](docs/web.md), Frame rate). RT64 interpolates to the display's rate (see
 [docs/building.md](docs/building.md) for the build and its findings).
