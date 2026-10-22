@@ -162,11 +162,13 @@ the ROM as the launcher's Load ROM does) and `--boot` (start the game without th
 to `build/shots/`, the log to `build/run.log` and the sound to `build/sound.wav` (SDL's disk audio driver). On
 Windows the program configures with clang-cl as CI's does, but no Windows build has been linked and run yet.
 
-To play it by hand, `tools/play_linux.sh` leaves that container running between commands: `start`, `hold` (keys, by
-xdotool's names, held together for a time), `shot`, `peek` (the game's variables, `tools/peek.py`) and `stop`, which
-writes `build/play/sound.wav`. Saves go to `build/home`, which the next `start` finds. The keys are RecompFrontend's
-defaults: A space, B left shift, Z q, Start return, L e, R r, the stick w a s d, the C buttons the arrows, the d-pad
-i j k l, and Escape opens the recomp's own menu.
+To play it by hand, `tools/play_linux.sh` leaves that container running between commands: `start` (in a window of
+a size given, 1280x720 for widescreen), `hold` (keys, by xdotool's names, held together for a time), `mouse` and
+`click` (the mouse's motion and buttons), `shot`, `peek` (the game's variables, `tools/peek.py`) and `stop`, which
+writes `build/play/sound.wav`. Saves and settings go to `build/home`, which the next `start` finds. The keys are
+RecompFrontend's defaults with A and D strafing (`src/mouse.cpp`): A space, B left shift, Z q, Start return, L e,
+R r, the stick w s and the left and right arrows, the C buttons a d and the up and down arrows, the d-pad i j k l, and
+Escape opens the recomp's own menu. With Mouse Sensitivity above 0% the mouse looks and its buttons fire and aim.
 
 ### What it plays
 
