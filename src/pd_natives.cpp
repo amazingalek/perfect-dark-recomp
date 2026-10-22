@@ -106,6 +106,16 @@ extern "C" void osPiReadIo_recomp(uint8_t* rdram, recomp_context* ctx) {
     ctx->r2 = 0;
 }
 
+// recomp_pd_render_to_ram_late(): whether render to RAM's copy into RDRAM lands a display list late, as src/main.cpp
+// sets it on the page, for the light glares' depth test (patches/artifacts.c).
+extern "C" void recomp_pd_render_to_ram_late(uint8_t* rdram, recomp_context* ctx) {
+#ifdef __EMSCRIPTEN__
+    ctx->r2 = 1;
+#else
+    ctx->r2 = 0;
+#endif
+}
+
 // recomp_pd_motor_init(mq, pfs, channel): the runtime's osMotorInit, for patches/paks.c: 0 when the controller has a
 // Rumble Pak (src/main.cpp, get_connected_device_info), which then rumbles through the runtime's __osMotorAccess.
 extern "C" void osMotorInit_recomp(uint8_t* rdram, recomp_context* ctx);
