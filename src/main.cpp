@@ -467,7 +467,7 @@ int main(int argc, char** argv) {
 
     ultramodern::input::callbacks_t input_callbacks{
         .poll_input = recompinput::poll_inputs,
-        .get_input = recompinput::profiles::get_n64_input,
+        .get_input = pd::get_input,
         .set_rumble = recompinput::set_rumble,
         .get_connected_device_info = get_connected_device_info,
     };
