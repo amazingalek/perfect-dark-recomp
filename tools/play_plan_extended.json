@@ -128,9 +128,9 @@
   ],
   [
    "hold",
-   "KeyD",
-   "d",
-   68,
+   "ArrowRight",
+   "ArrowRight",
+   39,
    800
   ],
   [
@@ -157,9 +157,9 @@
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -195,16 +195,16 @@
   ],
   [
    "hold",
-   "ArrowLeft",
-   "ArrowLeft",
-   37,
+   "KeyA",
+   "a",
+   65,
    3000
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -216,9 +216,9 @@
   ],
   [
    "hold",
-   "KeyA",
-   "a",
-   65,
+   "ArrowLeft",
+   "ArrowLeft",
+   37,
    800
   ],
   [
@@ -227,16 +227,16 @@
   ],
   [
    "hold",
-   "ArrowLeft",
-   "ArrowLeft",
-   37,
+   "KeyA",
+   "a",
+   65,
    1500
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -266,9 +266,9 @@
   ],
   [
    "hold",
-   "KeyD",
-   "d",
-   68,
+   "ArrowRight",
+   "ArrowRight",
+   39,
    800
   ],
   [
@@ -295,9 +295,9 @@
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -329,16 +329,16 @@
   ],
   [
    "hold",
-   "ArrowLeft",
-   "ArrowLeft",
-   37,
+   "KeyA",
+   "a",
+   65,
    3000
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -350,9 +350,9 @@
   ],
   [
    "hold",
-   "KeyA",
-   "a",
-   65,
+   "ArrowLeft",
+   "ArrowLeft",
+   37,
    800
   ],
   [
@@ -361,16 +361,16 @@
   ],
   [
    "hold",
-   "ArrowLeft",
-   "ArrowLeft",
-   37,
+   "KeyA",
+   "a",
+   65,
    1500
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -431,9 +431,9 @@
   ],
   [
    "hold",
-   "KeyD",
-   "d",
-   68,
+   "ArrowRight",
+   "ArrowRight",
+   39,
    800
   ],
   [
@@ -460,9 +460,9 @@
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -498,16 +498,16 @@
   ],
   [
    "hold",
-   "ArrowLeft",
-   "ArrowLeft",
-   37,
+   "KeyA",
+   "a",
+   65,
    3000
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -519,9 +519,9 @@
   ],
   [
    "hold",
-   "KeyA",
-   "a",
-   65,
+   "ArrowLeft",
+   "ArrowLeft",
+   37,
    800
   ],
   [
@@ -530,16 +530,16 @@
   ],
   [
    "hold",
-   "ArrowLeft",
-   "ArrowLeft",
-   37,
+   "KeyA",
+   "a",
+   65,
    1500
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -569,9 +569,9 @@
   ],
   [
    "hold",
-   "KeyD",
-   "d",
-   68,
+   "ArrowRight",
+   "ArrowRight",
+   39,
    800
   ],
   [
@@ -598,9 +598,9 @@
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -632,16 +632,16 @@
   ],
   [
    "hold",
-   "ArrowLeft",
-   "ArrowLeft",
-   37,
+   "KeyA",
+   "a",
+   65,
    3000
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -653,9 +653,9 @@
   ],
   [
    "hold",
-   "KeyA",
-   "a",
-   65,
+   "ArrowLeft",
+   "ArrowLeft",
+   37,
    800
   ],
   [
@@ -664,16 +664,16 @@
   ],
   [
    "hold",
-   "ArrowLeft",
-   "ArrowLeft",
-   37,
+   "KeyA",
+   "a",
+   65,
    1500
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -734,9 +734,9 @@
   ],
   [
    "hold",
-   "KeyD",
-   "d",
-   68,
+   "ArrowRight",
+   "ArrowRight",
+   39,
    800
   ],
   [
@@ -763,9 +763,9 @@
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -801,16 +801,16 @@
   ],
   [
    "hold",
-   "ArrowLeft",
-   "ArrowLeft",
-   37,
+   "KeyA",
+   "a",
+   65,
    3000
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -822,9 +822,9 @@
   ],
   [
    "hold",
-   "KeyA",
-   "a",
-   65,
+   "ArrowLeft",
+   "ArrowLeft",
+   37,
    800
   ],
   [
@@ -833,16 +833,16 @@
   ],
   [
    "hold",
-   "ArrowLeft",
-   "ArrowLeft",
-   37,
+   "KeyA",
+   "a",
+   65,
    1500
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -872,9 +872,9 @@
   ],
   [
    "hold",
-   "KeyD",
-   "d",
-   68,
+   "ArrowRight",
+   "ArrowRight",
+   39,
    800
   ],
   [
@@ -901,9 +901,9 @@
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -935,16 +935,16 @@
   ],
   [
    "hold",
-   "ArrowLeft",
-   "ArrowLeft",
-   37,
+   "KeyA",
+   "a",
+   65,
    3000
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [
@@ -956,9 +956,9 @@
   ],
   [
    "hold",
-   "KeyA",
-   "a",
-   65,
+   "ArrowLeft",
+   "ArrowLeft",
+   37,
    800
   ],
   [
@@ -967,16 +967,16 @@
   ],
   [
    "hold",
-   "ArrowLeft",
-   "ArrowLeft",
-   37,
+   "KeyA",
+   "a",
+   65,
    1500
   ],
   [
    "hold",
-   "ArrowRight",
-   "ArrowRight",
-   39,
+   "KeyD",
+   "d",
+   68,
    1500
   ],
   [

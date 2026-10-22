@@ -5,11 +5,14 @@
 // reads it there (the projection in vi.c, cam_set_perspective's for culling, sights and aiming). vi_get_fov_y gives the
 // game back the angle it set, so what it works out from it stays the game's: the turn and look speeds, which slow down
 // as it zooms in (bondmove.c). A zoomed angle widens by the same factor of its tangent, so a zoom magnifies as much.
+// The gun and the hand holding it are drawn at the game's angle (vi0000aca4, bgun_render's projection), as the PC
+// port draws them unless its FovAffectsGuns is on: drawn wider, the gun shrank and the arm reached the screen's foot.
 // The title, cutscenes and the stages that aren't levels keep the game's angle, as Original does everywhere.
 
 #include "patches.h"
 #include "lib/vi.h"
 #include "game/camera.h"
+#include "game/gfxmemory.h"
 #include "bss.h"
 #include "data.h"
 
@@ -83,4 +86,20 @@ RECOMP_PATCH f32 vi_get_fov_y(void)
 	}
 
 	return g_ViBackData->fovy;
+}
+
+RECOMP_PATCH Gfx *vi0000aca4(Gfx *gdl, f32 znear, f32 zfar)
+{
+	u16 scale;
+	Mtxf tmp;
+	Mtx *mtx = gfx_allocate_matrix();
+
+	// @recomp: the game's angle, not the one drawn.
+	guPerspectiveF(tmp.m, &scale, vi_get_fov_y(), g_ViBackData->aspect, znear, zfar, 1);
+	guMtxF2L(tmp.m, mtx);
+
+	gSPMatrix(gdl++, OS_K0_TO_PHYSICAL(mtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+	gSPPerspNormalize(gdl++, scale);
+
+	return gdl;
 }
