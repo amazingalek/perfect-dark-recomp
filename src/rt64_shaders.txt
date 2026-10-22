@@ -17,7 +17,9 @@
 # change to one of those defaults means recording again.
 # Added by hand at the end of their section: the shaders the page's play plans then missed (the boot 1,
 # Defection 15, 9 of them as it starts in Firefox alone; Villa 3), and those plays of a minute in each solo mission
-# then missed (20 in seven: Villa 2, G5 Building 5, Crash Site 3, Rescue 3, Defense 5, Skedar Ruins 1, Maian SOS 1).
+# then missed (20 in seven: Villa 2, G5 Building 5, Crash Site 3, Rescue 3, Defense 5, Skedar Ruins 1, Maian SOS 1),
+# and a route through 12 of them that turns, strafes, fires and aims then missed (8 in four: Air Base 1, Crash Site 3,
+# Defense 3, Skedar Ruins 1).
 # A new recording drops them unless they are added again.
 00504240 0080eccf fcff97ff ff2dfeff 04cb540b
 00504240 0089ec4f fcffffff fffdf6fb 1cc9540b
@@ -840,6 +842,7 @@ c4112078 00992c4f fc26a004 1f1093fb 1806008c
 c4112078 00992cff fc26a004 1f1093ff 18075408
 c4112078 0098acff fc26a004 1f1093ff 0ccf5408
 c4112078 00992cff fc26a004 1f1093ff 1ccf5408
+c4104dd8 00992c0f fc26a004 1f1093fb 188e000c
 section airforceone
 0f0a4000 0099ac0f fc121824 ff33ffff 188e0008
 00552048 00882c0f fc40fe81 55fef97c 088a0008
@@ -979,6 +982,9 @@ c4112078 0099acff fc26a004 1f1093ff 1807540c
 c4112078 00992c6f fc26a004 1f1093fb 1916880c
 c4112d58 00992c6f fc26a004 1f1093fb 1916880c
 c8102078 00992c6f fc26a004 1ffc93fd 1ccf540c
+00504340 00892c4f fcffffff fffdf6fb 1800018b
+00504340 00892c4f fcffffff fffdf6fb 1cc9540b
+00504340 0089ec4f fcffffff fffdf6fb 1cc9540b
 section pelagic
 0f0a4000 00882c0f fcffffff fffe793c 08000008
 00552048 00882c0f fc40fe81 55fef97c 088a0008
@@ -1220,6 +1226,9 @@ c4112078 0099ac4f fc159804 5ffedbf8 1bba440c
 c4112078 0098ac4f fc159804 5ffedbf8 099b100c
 c4112078 0098ac4f fc26a004 1f1093fb 0aaeaa0c
 c4112078 0098ac4f fc26a004 1f1093fb 0b37320c
+c4112078 00992c4f fc26a004 1f1093fb 1807100c
+c4104dd8 0099ac4f fc26a004 1f1093fb 1806008c
+c4104dd8 00992c4f fc26a004 1f1093fb 1ccf540c
 section attackship
 00504340 00802ccf fcffffff fffdf6fb 0800000b
 00502048 0088ac4f fc121a24 ff37ffff 0803540c
@@ -1351,6 +1360,7 @@ c41049d8 0099acff fc159a04 5ffefff8 188a000c
 004049d8 00882cff fcff99ff ff327f3f 0ccb540c
 00504b50 00882cbf fc121824 ff33ffff 088a0008
 c4112078 0099ac4f fc159804 5ffedbf8 18020088
+0c1849d8 0099ac7f fc26a004 1f1093ff 1ccf540c
 section mbr
 00502048 00882c0f fc127e24 fffff9fc 0803540c
 c4112078 0099ac0f fc159804 5ffedbf8 18035408
