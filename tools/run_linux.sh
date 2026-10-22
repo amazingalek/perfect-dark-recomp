@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs the program tools/build_linux.sh built where there is no display: in the image tools/linux_env.sh names, on
-# Xvfb, with the GPU it finds (the host's through Mesa's Dozen on WSL2, else lavapipe on the CPU) and SDL's disk audio
+# Xvfb, with Mesa's lavapipe on the CPU (tools/linux_env.sh) and SDL's disk audio
 # driver in place of a sound device, from the checkout (assets/ and recompcontrollerdb.txt are read from there). It stores the ROM (--rom), starts the game (--boot) and writes a
 # screenshot every few seconds to build/shots/, the log to build/run.log and the sound to build/sound.wav. The
 # program's data goes to build/home.

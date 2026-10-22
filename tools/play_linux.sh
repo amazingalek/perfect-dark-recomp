@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Plays the program tools/build_linux.sh built, by hand, where there is no display: tools/run_linux.sh's container
-# (tools/linux_env.sh: the host's GPU through Mesa's Dozen on WSL2, else lavapipe), left running between commands, so
+# (tools/linux_env.sh: Mesa's lavapipe, on the CPU), left running between commands, so
 # keys can be held and the screen and the game's variables looked at whenever. Everything goes to build/play/: the
 # log (run.log), screenshots, and the sound (sound.wav, written at stop). The program's data, the saves included,
 # goes to build/home, which a later start finds again.
