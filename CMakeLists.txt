@@ -1,6 +1,6 @@
 # Perfect Dark: Recompiled.
 # Based on rush-2049-recomp's CMakeLists.txt (GPL-3.0), itself on BanjoRecomp's. Desktop and web in one: the desktop
-# program builds on Linux (clang; tools/build_linux.sh) and Windows (clang-cl). With Emscripten (emcmake cmake;
+# program builds on Linux (clang; tools/build_linux.sh) and Windows (clang-cl; tools/build_windows.sh). With Emscripten (emcmake cmake;
 # tools/build_web.sh) it builds the page, PerfectDarkRecompiled.html, through lib/N64Recomp-browser/frontend
 # (docs/web.md). RecompiledFuncs/ and RecompiledPatches/ come from tools/recompile.sh and the patches step below, both
 # from the player's ROM (docs/building.md).
@@ -133,10 +133,16 @@ target_sources(RecompiledFuncs PRIVATE ${FUNC_C_SOURCES} ${FUNC_CXX_SOURCES})
 # patches/Makefile and recompiled by N64Recomp (patches.toml; the runtime's own N64Recomp, target N64RecompCLI).
 # Needs a clang with a MIPS backend and ld.lld (PATCHES_C_COMPILER, PATCHES_LD), and the headers the decompilation's build
 # generates from the extracted ROM (patches/Makefile). PD_PATCHES=OFF is for CI only, which has no ROM and stops
-# before linking: without the library the game doesn't boot.
+# before linking: without the library the game doesn't boot. On Windows, make, clang and ld.lld are WSL's
+# (PATCHES_MAKE): LLVM's Windows releases (21 and 23, the installer and the archive) have no MIPS target.
 option(PD_PATCHES "Build patches/ (the game needs it)" ON)
 set(PATCHES_C_COMPILER clang CACHE STRING "clang with a MIPS backend, for patches/")
 set(PATCHES_LD ld.lld CACHE STRING "ld.lld, for patches/")
+if (CMAKE_HOST_WIN32)
+    set(PATCHES_MAKE wsl make CACHE STRING "make for patches/, which runs PATCHES_C_COMPILER and PATCHES_LD")
+else()
+    set(PATCHES_MAKE make CACHE STRING "make for patches/, which runs PATCHES_C_COMPILER and PATCHES_LD")
+endif()
 
 if (PD_PATCHES)
     add_library(PatchesLib STATIC)
@@ -162,7 +168,7 @@ if (PD_PATCHES)
 
     # make is incremental, so this runs every build and relinks only when a patch source changed.
     add_custom_target(PatchesBin
-        COMMAND ${CMAKE_COMMAND} -E env CC=${PATCHES_C_COMPILER} LD=${PATCHES_LD} make
+        COMMAND ${PATCHES_MAKE} CC=${PATCHES_C_COMPILER} LD=${PATCHES_LD}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/patches
         BYPRODUCTS ${CMAKE_SOURCE_DIR}/patches/patches.elf
     )
@@ -280,7 +286,7 @@ if (WIN32)
 
     target_link_libraries(PerfectDarkRecompiled PRIVATE SDL2 Winmm.lib)
     # A window program, so no console window opens behind the game; main() stays the entry point. The log still
-    # reaches a redirect (iterate.sh's run.log), and --show-console opens a console for it (main.cpp).
+    # reaches a redirect of stdout and stderr.
     target_link_options(PerfectDarkRecompiled PRIVATE /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup)
 endif()
 

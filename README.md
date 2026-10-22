@@ -16,7 +16,9 @@ the agent file, the Perfect Menu, mission select, the briefing, retry and next m
 agent file, the completed mission and the next one it unlocks. The game draws 59-60 frames a second in its levels,
 every frame one VI, with its clock at real time, where its own controller reads held it to 30 (a patch puts off the
 tick that would restart them, [docs/web.md](docs/web.md), Frame rate). RT64 interpolates to the display's rate (see
-[docs/building.md](docs/building.md) for the build and its findings).
+[docs/building.md](docs/building.md) for the build and its findings). On Windows (clang-cl, drawing through D3D12)
+it builds and plays too: the launcher, Load ROM, Start Game, a new agent file and Defection with sound, and the save
+is there at the next start. No Windows or Linux release is offered yet: build it as docs/building.md says.
 
 Still wrong or not yet checked:
 
@@ -25,8 +27,8 @@ Still wrong or not yet checked:
 - Speech (MP3): guards' lines start and play to their end in the game's MP3 player, but nobody has listened to them.
 - Clouds and water draw through a patch (the game draws them in a way RT64 doesn't), seen in Villa and Chicago but
   not compared with a console's.
-- No Windows build has been linked and run, the launcher has only been skipped (`--boot`), and rumble hasn't been
-  felt on a pad.
+- Rumble hasn't been felt on a pad, the Windows build's sound has only been written to a file (SDL's disk driver),
+  not heard through a device, and it hasn't been played longer than a few minutes.
 - The enhancements were played on the desktop build in Defection at 1280x720, each on and off: the level drawn
   to the window's edges, the ammo at its side, the mouse turning, tilting, aiming and changing weapon, and Field of
   View. Not yet looked at with Expand: the HUD's messages and the mission timer at the left edge, the radar, the

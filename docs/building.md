@@ -8,7 +8,8 @@ desktop program from it ([The desktop program](#the-desktop-program)), which pla
 
 ## What you need
 
-- Linux with Docker (WSL2 works), git, and about 2 GB of disk.
+- Linux with Docker (WSL2 works), git, and about 2 GB of disk. A Windows build also needs the tools
+  [On Windows](#on-windows) lists.
 - The ROM: *Perfect Dark (U) (V1.1)*, a big-endian `.z64` with MD5 `e03b088b6ac9e0080440efed07c1e40f`.
 
 ## Build it
@@ -159,8 +160,7 @@ tools/run_linux.sh path/to/pd.z64 120 10    # [seconds, 60] [seconds between scr
 `tools/linux_env.sh` finds: on WSL2 the host's, through Mesa's Dozen (Vulkan over D3D12, `tools/docker/Dockerfile.run`),
 and elsewhere Mesa's lavapipe on the CPU, which draws a level at a few frames a minute. It runs with `--rom` (store
 the ROM as the launcher's Load ROM does) and `--boot` (start the game without the launcher), and writes screenshots
-to `build/shots/`, the log to `build/run.log` and the sound to `build/sound.wav` (SDL's disk audio driver). On
-Windows the program configures with clang-cl as CI's does, but no Windows build has been linked and run yet.
+to `build/shots/`, the log to `build/run.log` and the sound to `build/sound.wav` (SDL's disk audio driver).
 
 To play it by hand, `tools/play_linux.sh` leaves that container running between commands: `start` (in a window of
 a size given, 1280x720 for widescreen), `hold` (keys, by xdotool's names, held together for a time), `mouse` and
@@ -192,6 +192,46 @@ restarts the controller polling (`joy_debug_joy`, `joy.c`), which takes two VIs,
 start the next tick before the next sample, so the ticks after it miss too. `patches/frame_rate.c` puts such a tick off
 until the poll that is out has its sample, at the next VI; without it the same play draws Defection at 38.4,
 Investigation at 30.0 and Chicago at 48.8 ([web.md](web.md), Frame rate).
+
+### On Windows
+
+The program builds for Windows x64 with clang-cl and draws through D3D12. The decomp and `patches/` still build in
+WSL2: the decomp's build is Linux's, and LLVM's Windows releases have no MIPS target. Git for Windows checks text out
+with CRLF line endings, which the decomp's build can't read, so clone with them off, in the repository and in each
+submodule:
+
+```bash
+git -c core.autocrlf=false clone --recurse-submodules https://github.com/amazingalek/perfect-dark-recomp
+cd perfect-dark-recomp
+git config core.autocrlf false
+git submodule foreach --recursive git config core.autocrlf false
+```
+
+Then, in that checkout:
+
+```bash
+tools/build_decomp.sh /mnt/c/path/to/pd.z64   # in a WSL2 shell (Docker, as above)
+tools/build_windows.sh                        # in Git Bash: build/windows/PerfectDarkRecompiled.exe; [cpus]
+tools/package_windows.sh                      # in Git Bash: build/PerfectDarkRecompiled-windows-x64.zip
+```
+
+`tools/build_windows.sh` needs clang-cl, lld-link, CMake (3.20-3.31) and Ninja on `PATH`, the MSVC libraries and
+the Windows SDK (from Visual Studio or its Build Tools, or else through `INCLUDE` and `LIB`), and `wsl`, whose default
+distro has clang, ld.lld and make (`sudo apt install clang lld make`) for `patches/` (`CMakeLists.txt`,
+`PATCHES_MAKE`). It has been built with LLVM 23.1.4, CMake 3.31.10, Ninja 1.13.2 and an
+[xwin](https://github.com/Jake-Shadle/xwin) 0.10 copy of the MSVC libraries and the Windows SDK 10.0.26100, with
+Visual Studio itself not tried. `tools/package_windows.sh` zips the program, the DLLs beside it (SDL2, dxcompiler,
+dxil), `assets/`, `recompcontrollerdb.txt` and `LICENSE`, and nothing from the ROM: the player picks theirs with Load
+ROM. The program needs a recent Visual C++ 2015-2022 redistributable (x64), as the MSVC libraries it links with
+(14.44) are newer than older installs. It keeps its data (the stored ROM, saves, settings) in
+`%LOCALAPPDATA%\PerfectDarkRecompiled`, or beside itself when a `portable.txt` is there.
+
+With an NVIDIA desktop GPU, the zip, unpacked and run with `portable.txt`, plays: the launcher, Load ROM (Windows'
+file dialog), Start Game, the intro, a new agent file saved to the Game Pak, the Perfect Menu, *dataDyne Central -
+Defection* on Agent from its briefing, with a minute and a half of walking, turning, strafing and firing, and sound
+throughout (written by SDL's disk audio driver: the real device, WASAPI, hasn't been listened to). The window's close
+button asks to quit and Quit closes it. The next start finds the stored ROM, and Start Game goes straight to the
+Perfect Menu with the agent file loaded.
 
 ### What the build needs that isn't obvious
 
@@ -242,10 +282,11 @@ Investigation at 30.0 and Chicago at 48.8 ([web.md](web.md), Frame rate).
 - The GPU device was lost once, after 22 minutes of play under Dozen. The log says `D3D12: Removing Device.` and then
   every Vulkan call failed, and the program crashed. The NVIDIA driver logged an error in the same second. A later
   17-minute play never lost it. Whether Dozen (which Mesa calls non-conformant) or the game's drawing causes it isn't
-  known, and no Windows build exists to tell them apart.
+  known. The Windows build draws through D3D12 without Dozen, but hasn't been played that long.
 - Speech: the guards' lines start and play to their end in the game's MP3 player (`g_SndCurMp3`, `g_Mp3Vars`), and
   the sound has no gaps, but nobody has listened to a line.
-- The launcher (the plays start with `--boot`), rumble on a pad, and a Windows build.
+- Rumble on a pad, the Windows build's sound through a real device, and a Windows build with Visual Studio's own
+  compiler.
 - The sky patch's clouds and water haven't been compared with a console's. The water's texture scale is the PC
   port's (a tenth of what the game computes), and nobody has played a level with clouds from start to end.
 - `frametime_calculate` (`src/game/timing.c`) spins on `osGetCount`, but `main_loop` calls a tick only half a frame
