@@ -156,9 +156,10 @@ tools/run_linux.sh path/to/pd.z64 120 10    # [seconds, 60] [seconds between scr
 
 `tools/build_linux.sh` builds the image `tools/docker/Dockerfile.linux`, runs `tools/recompile.sh` (N64Recomp with
 `us.toml` into `RecompiledFuncs/`, RSPRecomp with `aspMain.us.toml` into `rsp/`) and the game's CMake build into
-`build/linux/PerfectDarkRecompiled`. `tools/run_linux.sh` runs it where there is no display, on Xvfb, with the GPU
-`tools/linux_env.sh` finds: on WSL2 the host's, through Mesa's Dozen (Vulkan over D3D12, `tools/docker/Dockerfile.run`),
-and elsewhere Mesa's lavapipe on the CPU, which draws a level at a few frames a minute. It runs with `--rom` (store
+`build/linux/PerfectDarkRecompiled`. `tools/run_linux.sh` runs it where there is no display, on Xvfb, with Mesa's
+lavapipe on the CPU (`tools/linux_env.sh`), which draws a level at a few frames a minute. It never takes WSL2's GPU
+(`/dev/dxg`, through Mesa's Dozen): a device lost there froze the whole Windows host (Not done yet). On a GPU the game
+plays on Windows, below, or as its page. It runs with `--rom` (store
 the ROM as the launcher's Load ROM does) and `--boot` (start the game without the launcher), and writes screenshots
 to `build/shots/`, the log to `build/run.log` and the sound to `build/sound.wav` (SDL's disk audio driver).
 
@@ -284,10 +285,13 @@ Perfect Menu with the agent file loaded.
 
 ### Not done yet
 
-- The GPU device was lost once, after 22 minutes of play under Dozen. The log says `D3D12: Removing Device.` and then
-  every Vulkan call failed, and the program crashed. The NVIDIA driver logged an error in the same second. A later
-  17-minute play never lost it. Whether Dozen (which Mesa calls non-conformant) or the game's drawing causes it isn't
-  known. The Windows build draws through D3D12 without Dozen, but hasn't been played that long.
+- The GPU device was lost twice under Dozen. After 22 minutes of play the log said `D3D12: Removing Device.` and then
+  every Vulkan call failed, and the program crashed; the NVIDIA driver logged an error in the same second, and a later
+  17-minute play never lost it. A sweep through missions' starts lost it again (`vkWaitForFences`
+  `VK_ERROR_DEVICE_LOST`): the program stayed in the host's GPU driver, where nothing could stop it,
+  and the whole Windows host froze until it restarted. So `tools/linux_env.sh` takes lavapipe only. Whether Dozen
+  (which Mesa calls non-conformant) or the game's drawing causes it isn't known. The Windows build draws through D3D12
+  without Dozen, but hasn't been played that long.
 - Speech: the guards' lines start and play to their end in the game's MP3 player (`g_SndCurMp3`, `g_Mp3Vars`), and
   the sound has no gaps, but nobody has listened to a line.
 - Rumble on a pad, the Windows build's sound through a real device, and a Windows build with Visual Studio's own
