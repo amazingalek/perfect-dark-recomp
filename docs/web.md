@@ -51,7 +51,8 @@ does nothing unless a script asks.
 starts *dataDyne Central - Defection* on Agent, skips its opening cutscene and plays a minute of the game's time in it:
 walking, strafing, turning, firing and aiming. `tools/play_plan_extended.json` (about 4 minutes) plays Defection,
 then *Villa* and *Chicago*. Play them with N64Recomp-browser's `tools/play_page.mjs` (its `docs/playing.md`).
-They press the keyboard's defaults (`src/mouse.cpp`): W and S walk, A and D strafe, the arrows turn.
+They press the keyboard's defaults (`src/mouse.cpp`): W and S walk, A and D strafe, the arrows turn, Q fires, Left
+Shift aims and Space skips a cutscene.
 
 ## The enhancements
 

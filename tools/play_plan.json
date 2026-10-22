@@ -8,7 +8,7 @@
   "and a dozen screens a script can't pass reliably. Each mission is behind a need that fails the run unless its stage",
   "is the one playing and Joanna is in control, its opening cutscene skipped with A (Space). She is made invincible",
   "(setInvincible) and plays about 60 s of the game's time: out and back by as much about where the level starts her,",
-  "strafing, turning, firing and aiming (R). Its waits and holds are on the game's own clock, g_Vars.lvframe240 (240 a",
+  "strafing, turning, firing and aiming (Left Shift). Its waits and holds are on the game's own clock, g_Vars.lvframe240 (240 a",
   "second), so every browser walks her as far whatever frames it gives the game.",
   "dataDyne Central - Defection, from the roof where it starts. tools/play_plan_extended.json goes on to two more",
   "missions, for when a longer play is needed."
@@ -167,9 +167,9 @@
   ],
   [
    "down",
-   "KeyR",
-   "r",
-   82
+   "ShiftLeft",
+   "Shift",
+   16
   ],
   [
    "wait",
@@ -188,9 +188,9 @@
   ],
   [
    "up",
-   "KeyR",
-   "r",
-   82
+   "ShiftLeft",
+   "Shift",
+   16
   ],
   [
    "hold",
@@ -301,9 +301,9 @@
   ],
   [
    "down",
-   "KeyR",
-   "r",
-   82
+   "ShiftLeft",
+   "Shift",
+   16
   ],
   [
    "wait",
@@ -322,9 +322,9 @@
   ],
   [
    "up",
-   "KeyR",
-   "r",
-   82
+   "ShiftLeft",
+   "Shift",
+   16
   ],
   [
    "hold",

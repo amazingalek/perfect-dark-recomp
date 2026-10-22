@@ -166,8 +166,8 @@ To play it by hand, `tools/play_linux.sh` leaves that container running between 
 a size given, 1280x720 for widescreen), `hold` (keys, by xdotool's names, held together for a time), `mouse` and
 `click` (the mouse's motion and buttons), `shot`, `peek` (the game's variables, `tools/peek.py`) and `stop`, which
 writes `build/play/sound.wav`. Saves and settings go to `build/home`, which the next `start` finds. The keys are
-RecompFrontend's defaults with A and D strafing (`src/mouse.cpp`): A space, B left shift, Z q, Start return, L e,
-R r, the stick w s and the left and right arrows, the C buttons a d and the up and down arrows, the d-pad i j k l, and
+RecompFrontend's defaults as `src/mouse.cpp` changes them: A space, B e and r, Z q, Start return, L none,
+R left shift, the stick w s and the left and right arrows, the C buttons a d and the up and down arrows, the d-pad i j k l, and
 Escape opens the recomp's own menu. With Mouse Sensitivity above 0% the mouse looks and its buttons fire and aim.
 
 ### What it plays

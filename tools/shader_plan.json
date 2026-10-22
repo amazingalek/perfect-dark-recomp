@@ -162,9 +162,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -183,9 +183,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -336,9 +336,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -357,9 +357,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -510,9 +510,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -531,9 +531,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -684,9 +684,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -705,9 +705,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -858,9 +858,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -879,9 +879,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -1032,9 +1032,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -1053,9 +1053,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -1206,9 +1206,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -1227,9 +1227,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -1380,9 +1380,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -1401,9 +1401,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -1554,9 +1554,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -1575,9 +1575,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -1728,9 +1728,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -1749,9 +1749,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -1902,9 +1902,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -1923,9 +1923,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -2076,9 +2076,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -2097,9 +2097,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -2250,9 +2250,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -2271,9 +2271,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -2424,9 +2424,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -2445,9 +2445,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -2598,9 +2598,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -2619,9 +2619,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -2772,9 +2772,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -2793,9 +2793,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -2946,9 +2946,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -2967,9 +2967,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -3120,9 +3120,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -3141,9 +3141,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -3294,9 +3294,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -3315,9 +3315,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -3468,9 +3468,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -3489,9 +3489,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
@@ -3642,9 +3642,9 @@
     ],
     [
      "down",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "wait",
@@ -3663,9 +3663,9 @@
     ],
     [
      "up",
-     "KeyR",
-     "r",
-     82
+     "ShiftLeft",
+     "Shift",
+     16
     ],
     [
      "hold",
