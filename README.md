@@ -5,8 +5,8 @@
 > don't take AI-written code.
 
 A port of the N64 version of *Perfect Dark* (USA, revision 1) to PC and to the web, made by static recompilation
-([N64Recomp](https://github.com/N64Recomp/N64Recomp) + [N64ModernRuntime](https://github.com/N64Recomp/N64ModernRuntime)
-+ [RT64](https://github.com/rt64/rt64)): the game's own MIPS code translated to C and run natively, with RT64 drawing
+([N64Recomp](https://github.com/N64Recomp/N64Recomp) + [N64ModernRuntime](https://github.com/N64Recomp/N64ModernRuntime) +
+[RT64](https://github.com/rt64/rt64)): the game's own MIPS code translated to C and run natively, with RT64 drawing
 it. Its symbols come from the [Perfect Dark decompilation](https://github.com/n64decomp/perfect_dark) (MIT), pinned
 at `lib/perfect_dark`. It is not an emulator and it contains no game data: you supply your own ROM.
 
