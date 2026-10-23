@@ -51,15 +51,21 @@ play as after a player's mission. Its header says each field. It does nothing un
 ## The plans
 
 `tools/play_plan.json` (about 2 minutes) boots, waits for the prebuilt shaders, shoots the intro and the file menu,
-starts *dataDyne Central - Defection* on Agent, skips its opening cutscene and plays a minute of the game's time in it:
-walking, strafing, turning, firing and aiming. `tools/play_plan_extended.json` (about 4 minutes) plays Defection,
-then *Villa* and *Chicago*. `tools/play_plan_full.json` (about 55 minutes, for a card that asks for the whole game)
+starts *dataDyne Central - Defection* on Agent, skips its opening cutscene and plays a minute of the game's time in
+it: walking, strafing, turning, firing and aiming. `tools/play_plan_extended.json` (about 4 minutes) plays Defection,
+then *Villa* and *Chicago*. `tools/play_plan_full.json` (about 40 minutes, for a card that asks for the whole game)
 plays all 21 solo missions on Agent in the game's order: each mission's opening cutscene to its end, the extended
 plan's moves, then the survey's end, the endscreen, and Continue and Accept into the next mission, the game's own way
 from one to the next; Skedar Ruins' Continue plays a minute of the credits, and the survey starts the four special
-assignments from there (its header says each step). Play them with N64Recomp-browser's `tools/play_page.mjs` (its `docs/playing.md`).
-They press the keyboard's defaults (`src/mouse.cpp`): W and S walk, A and D strafe, the arrows turn, Q fires, Left
-Shift aims and Space skips a cutscene.
+assignments from there (its header says each step). Played through in Chrome and Firefox on a desktop GPU, every
+mission ends Completed with no WebGPU error or exception. Each mission's load has one gap of about 300 ms. The opening
+cutscenes of Defection, Chicago, Infiltration and Skedar Ruins stall for 130-150 ms every few seconds. Each stall is
+the game's own frame of 8 VIs, on the desktop build and a console too: each shot's start stops and restarts the
+controllers' polling (N64Recomp-browser's `docs/findings.md`). Infiltration's cutscene presents only 36-65 a second
+for about 50 s in Firefox (160-180 in Chrome, against 230 in the rest of the play). The levels themselves have at most
+one gap over 100 ms a mission. Play them with N64Recomp-browser's `tools/play_page.mjs` (its `docs/playing.md`). They
+press the keyboard's defaults (`src/mouse.cpp`): W and S walk, A and D strafe, the arrows turn, Q fires, Left Shift
+aims and Space skips a cutscene.
 
 ## The enhancements
 
@@ -86,8 +92,8 @@ Crash Site, Defense and Skedar Ruins plays in Chrome and Firefox. The desktop bu
 
 ## The shader list
 
-`src/rt64_shaders.txt` holds 702 shaders, which RT64 builds as 278 pipelines: 42 for the boot, then a section
-a solo mission (21 sections of 29-127, a shader in the section of every mission that draws it). It was recorded
+`src/rt64_shaders.txt` holds 784 shaders, which RT64 builds as 306 pipelines: 42 for the boot, then a section
+a solo mission (21 sections of 34-132, a shader in the section of every mission that draws it). It was recorded
 in headless Chrome at 1256x645 by `tools/record_shaders.sh`, a page load a mission, about 25 minutes in all; its
 header says what each section played and what it leaves out. The plans' plays then missed 19 more, added by hand
 at the end of the boot's, Defection's and Villa's sections: 10 in Chrome, different ones each run (the boot's as
@@ -100,9 +106,12 @@ a strafe, a shot, aiming, forward and back) then missed 28 more in five (G5 Buil
 Defense 5, Skedar Ruins 1), Chrome and Firefox missing different flags of the same combiners, added the same way.
 Then the route from the published page missed 2 more in Air Base, the boot as it plays by itself for 45 s (the
 publish's boot check) 3, and Firefox 1 more as the intro's Defection loads and 1 in Skedar Ruins; with them the
-route through those five misses none in either browser (N64Recomp-browser's `plays.jsonl`). Firefox
-waits about 3 s for the boot's section before the first frame and about 3 s for Defection's as it starts; Chrome
-builds the whole list behind the launcher in about 8 s.
+route through those five misses none in either browser (N64Recomp-browser's `plays.jsonl`). The whole-game plan,
+which watches each mission's opening cutscene to its end and plays its endscreen, then missed 80 more in twelve
+missions, nearly the same ones in Chrome and Firefox (the list's header has them by mission), and its next run in
+each, with them, 2 more. Firefox waits about 3 s for the boot's section before the first frame, about 3 s for
+Defection's as it starts and 1-2 s for a later mission's as it loads, on a black screen; Chrome builds the whole list
+behind the launcher in about 8 s.
 
 ## Frame rate
 
