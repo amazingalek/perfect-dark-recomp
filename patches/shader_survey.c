@@ -8,8 +8,9 @@
 // then filemgr_save_game_to_device's save), taken once the menu has read the Game Pak, has room on it and the pak
 // answers to its serial (before that the save fails without trying), so the game has a file to save each mission's
 // end to, as a player's has; `newfileresult` is then 1 if it saved, -1 if not, and `pakerror` the save's error
-// (g_FilemgrLastPakError). It writes the stage's index in the mission list (g_SoloStages, 0 is dataDyne Central - Defection) into `stageindex` and then `request`; `loaded`
-// counts the requests taken, so it knows one was, and `target` is the stage the last one started. main_tick
+// (g_FilemgrLastPakError). It writes the stage's index in the mission list (g_SoloStages, 0 is dataDyne Central -
+// Defection) into `stageindex` and then `request`; `loaded` counts the requests taken, so it knows one was, and
+// `target` is the stage the last one started. main_tick
 // (patches/frame_rate.c) calls shader_survey_tick once a frame on the game's main thread, so a request is taken between
 // frames: the mission is set up on Agent, alone, and started as mission select's Accept does
 // (menuhandler_accept_mission), the game's own way into a level. `invincible` set keeps

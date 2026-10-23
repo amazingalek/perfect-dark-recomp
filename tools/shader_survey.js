@@ -9,10 +9,10 @@
 // true once the player is, false after ms; clock(), the level's clock, 240 a second of the game's own time
 // (g_Vars.lvframe240), for a plan's ["clock", "clock()", 240]; setInvincible(), which keeps the player alive for as long
 // as the page runs, as the Invincible cheat does; newFile(ms), which makes an Agent file on the Game Pak from the file
-// menu, as New Agent does, and resolves true once it is saved, false after ms or if the save failed (with a
-// console line of its error); and complete(ms), which
-// ends the mission playing as completed, as its own script does once its objectives are done, and resolves true once the
-// game has taken it (its endscreen follows), false after ms (tools/play_plan_full.json plays the game through with them).
+// menu, as New Agent does, and resolves true once it is saved, false after ms or if the save failed (with a console
+// line of its error); and complete(ms), which ends the mission playing as completed, as its own script does once its
+// objectives are done, and resolves true once the game has taken it (its endscreen follows), false after ms
+// (tools/play_plan_full.json plays the game through with them).
 (() => {
   if (!window.__survey) {
     for (let a = 0x80000000; a < 0x81800000; a += 4) {
