@@ -5,9 +5,14 @@
 // plays, false after ms; play(stageindex, ms), which starts that solo mission (its index in mission select's list, 0
 // Defection) on Agent as mission select's Accept does and resolves true once the game has taken the request and loaded
 // that stage, false after ms (ask from the file menu or a level: the title's intro drops it); inControl(), true once the
-// player is in control (the stage's own view, its opening cutscene over or skipped); clock(), the level's
-// clock, 240 a second of the game's own time (g_Vars.lvframe240), for a plan's ["clock", "clock()", 240]; and
-// setInvincible(), which keeps the player alive for as long as the page runs, as the Invincible cheat does.
+// player is in control (the stage's own view, its opening cutscene over or skipped); untilControl(ms), which resolves
+// true once the player is, false after ms; clock(), the level's clock, 240 a second of the game's own time
+// (g_Vars.lvframe240), for a plan's ["clock", "clock()", 240]; setInvincible(), which keeps the player alive for as long
+// as the page runs, as the Invincible cheat does; newFile(ms), which makes an Agent file on the Game Pak from the file
+// menu, as New Agent does, and resolves true once it is saved, false after ms or if the save failed (with a console
+// line of its error); and complete(ms), which ends the mission playing as completed, as its own script does once its
+// objectives are done, and resolves true once the game has taken it (its endscreen follows), false after ms
+// (tools/play_plan_full.json plays the game through with them).
 (() => {
   if (!window.__survey) {
     for (let a = 0x80000000; a < 0x81800000; a += 4) {
@@ -36,5 +41,25 @@
     return n64r(s + 36) !== loads && window.stage() === target;
   };
   window.setInvincible = () => { n64w(s + 20, 1); return 'stage 0x' + window.stage().toString(16); };
+  window.newFile = async (ms) => {
+    n64w(s + 52, 1);
+    const end = Date.now() + ms;
+    while (n64r(s + 56) === 0 && Date.now() < end) await sleep(100);
+    const result = n64r(s + 56) | 0;
+    if (result === -1) console.log(`newFile: the save failed, pak error ${n64r(s + 60) | 0}`);
+    return result === 1;
+  };
+  window.untilControl = async (ms) => {
+    const end = Date.now() + ms;
+    while (!window.inControl() && Date.now() < end) await sleep(100);
+    return window.inControl();
+  };
+  window.complete = async (ms) => {
+    const before = n64r(s + 48);
+    n64w(s + 44, 1);
+    const end = Date.now() + ms;
+    while (n64r(s + 48) === before && Date.now() < end) await sleep(50);
+    return n64r(s + 48) !== before;
+  };
   return s ? 'survey at ' + s.toString(16) : 'no survey struct: a page built without patches/shader_survey.c';
 })()
