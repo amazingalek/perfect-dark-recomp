@@ -19,6 +19,10 @@
 # beside the binary (RUNPATH $ORIGIN), as the Windows zip carries SDL2.dll, and is a .tar.gz so the binary stays
 # executable. GTK 3, FreeType and a Vulkan driver are the system's. Run from another folder, the program works from its
 # own (src/main.cpp).
+# v0.1.0's Linux archive was checked by running it in distribution containers under Xvfb with Mesa's software Vulkan
+# (lavapipe), from another folder, the ROM stored beside it, --boot: on Ubuntu 22.04 and Debian 12 it played the intro
+# for 3 minutes; on Ubuntu 24.04 (Mesa 25.2) it drew the title and then lavapipe crashed in one of its own llvmpipe
+# threads, as rush-2049-recomp's release does there. No Linux GPU has run it.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 cd "$ROOT"
