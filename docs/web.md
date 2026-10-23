@@ -8,8 +8,8 @@ published with the game in it.
 
 What is the game's own stays here: the `EMSCRIPTEN` branches of `CMakeLists.txt` that make the game a page,
 `tools/build_web.sh`, the prebuilt shader list (`src/rt64_shaders.txt`, recorded by `tools/shader_plan.json`; the
-list's header says how to record it again), the play plans (`tools/play_plan.json`, `tools/play_plan_extended.json`)
-and the survey that drives both (`patches/shader_survey.c`, `tools/shader_survey.js`). The rest is
+list's header says how to record it again), the play plans (`tools/play_plan.json`, `tools/play_plan_extended.json`,
+`tools/play_plan_full.json`) and the survey that drives them (`patches/shader_survey.c`, `tools/shader_survey.js`). The rest is
 N64Recomp-browser's: `docs/porting.md` (WebGPU and the shaders, prebuilt shader lists, Emscripten), `docs/playing.md`
 (playing and measuring a page), `docs/forks.md` and `docs/findings.md`. Every play of this game's page is a line in
 N64Recomp-browser's `plays.jsonl` (game `pd`), never a record here.
@@ -42,15 +42,22 @@ A play plan or a shader recording needs the game in each level without playing i
 `patches/shader_survey.c` is a struct in RDRAM with two magic words, which `tools/shader_survey.js` finds from the page;
 the script asks for a solo mission by writing its index, and the game starts it between frames as mission select's
 Accept does. It also says which stage plays, whether the player is in control, and the level's clock, which the plans
-hold their waits on (`["clock", "clock()", 240]`), and it keeps the player invincible. Its header says each field. It
-does nothing unless a script asks.
+hold their waits on (`["clock", "clock()", 240]`), and it keeps the player invincible. For the whole-game plan it
+also makes an Agent file on the Game Pak at the file menu, as New Agent does, so each mission's end has a file to
+save to, and ends a mission as completed, as the mission's own script does once its objectives are done, with every
+objective counted complete (the debug build's `debug_force_all_objectives_complete`): the endscreen and Continue then
+play as after a player's mission. Its header says each field. It does nothing unless a script asks.
 
 ## The plans
 
 `tools/play_plan.json` (about 2 minutes) boots, waits for the prebuilt shaders, shoots the intro and the file menu,
 starts *dataDyne Central - Defection* on Agent, skips its opening cutscene and plays a minute of the game's time in it:
 walking, strafing, turning, firing and aiming. `tools/play_plan_extended.json` (about 4 minutes) plays Defection,
-then *Villa* and *Chicago*. Play them with N64Recomp-browser's `tools/play_page.mjs` (its `docs/playing.md`).
+then *Villa* and *Chicago*. `tools/play_plan_full.json` (about 55 minutes, for a card that asks for the whole game)
+plays all 21 solo missions on Agent in the game's order: each mission's opening cutscene to its end, the extended
+plan's moves, then the survey's end, the endscreen, and Continue and Accept into the next mission, the game's own way
+from one to the next; Skedar Ruins' Continue plays a minute of the credits, and the survey starts the four special
+assignments from there (its header says each step). Play them with N64Recomp-browser's `tools/play_page.mjs` (its `docs/playing.md`).
 They press the keyboard's defaults (`src/mouse.cpp`): W and S walk, A and D strafe, the arrows turn, Q fires, Left
 Shift aims and Space skips a cutscene.
 
