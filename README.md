@@ -37,7 +37,7 @@ Still wrong or not yet checked:
   fades and the cutscene bars. On the page the mouse hasn't been played: the plays are headless, and headless
   Chrome refuses the pointer lock.
 
-**The web page plays at [amazingalek.github.io/perfect-dark-recomp](https://amazingalek.github.io/perfect-dark-recomp/)**,
+**The web page plays at [n64hub.com/perfect-dark](https://n64hub.com/perfect-dark/)**,
 from your own ROM through its Load ROM ([docs/web.md](docs/web.md)). In Chrome and Firefox it
 boots with no WebGPU errors, builds its shaders from a prebuilt list with a section a mission, and plays Defection,
 Villa and Chicago, each started by a script, its sound playing.
