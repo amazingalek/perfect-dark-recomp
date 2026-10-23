@@ -222,7 +222,11 @@ the Windows SDK (from Visual Studio or its Build Tools, or else through `INCLUDE
 distro has clang, ld.lld and make (`sudo apt install clang lld make`) for `patches/` (`CMakeLists.txt`,
 `PATCHES_MAKE`). It has been built with LLVM 23.1.4, CMake 3.31.10, Ninja 1.13.2 and an
 [xwin](https://github.com/Jake-Shadle/xwin) 0.10 copy of the MSVC libraries and the Windows SDK 10.0.26100, with
-Visual Studio itself not tried. `tools/package_windows.sh` zips the program, the DLLs beside it (SDL2, dxcompiler,
+Visual Studio itself not tried. Without WSL, `MIPS_CC` (a Windows clang with a MIPS backend, such as MSYS2's clang64)
+and `MIPS_LD` (an ld.lld) with GNU make on `PATH` build `patches/` instead; the decomp's build, its relink and the
+headers it generates (`build/relink/`, `lib/perfect_dark/build/ntsc-final/rsp/`, `lib/perfect_dark/src/generated/`)
+then come from a Linux checkout of the same commit.
+`tools/package_windows.sh` zips the program, the DLLs beside it (SDL2, dxcompiler,
 dxil), `assets/`, `recompcontrollerdb.txt` and `LICENSE`, and nothing from the ROM: the player picks theirs with Load
 ROM. The program needs a recent Visual C++ 2015-2022 redistributable (x64), as the MSVC libraries it links with
 (14.44) are newer than older installs. It keeps its data (the stored ROM, saves, settings) in
@@ -234,6 +238,13 @@ Defection* on Agent from its briefing, with a minute and a half of walking, turn
 throughout (written by SDL's disk audio driver: the real device, WASAPI, hasn't been listened to). The window's close
 button asks to quit and Quit closes it. The next start finds the stored ROM, and Start Game goes straight to the
 Perfect Menu with the agent file loaded.
+
+### Releases
+
+`tools/release.sh windows` (Git Bash) and `tools/release.sh linux` (Linux with Docker) build and pack the release's
+two archives into `out/`, from the same commit of `main`, and `tools/release.sh publish` publishes them as the GitHub
+release `v<version_string>` (`src/main.cpp`) with `releases/v<version>.md` as its notes. Its header says what each
+archive holds and what publishing checks first.
 
 ### What the build needs that isn't obvious
 

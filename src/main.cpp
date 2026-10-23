@@ -11,6 +11,7 @@
 #include <string>
 #include <stdexcept>
 #include <cinttypes>
+#include <filesystem>
 
 #ifndef __EMSCRIPTEN__
 #include "nfd.h" // a browser has no native file dialogs; RecompFrontend asks the page instead
@@ -58,7 +59,7 @@
 #endif
 
 
-const std::string version_string = "1.0.0";
+const std::string version_string = "0.1.0";
 
 template<typename... Ts>
 void exit_error(const char* str, Ts ...args) {
@@ -384,6 +385,21 @@ int main(int argc, char** argv) {
         ultramodern::error_handling::message_box(("Invalid version string: " + version_string).c_str());
         return EXIT_FAILURE;
     }
+
+#if defined(__linux__) && !defined(__EMSCRIPTEN__)
+    // RecompFrontend finds assets/ (and portable.txt) in the working directory, which a desktop launcher or a shell
+    // elsewhere doesn't set to the release's folder: when assets/ isn't there, work from the program's own folder.
+    // A dev build run from the repo's root keeps the root, which is where assets/ is.
+    {
+        std::error_code ec;
+        if (!std::filesystem::is_directory("assets", ec)) {
+            std::filesystem::path exe_dir = std::filesystem::read_symlink("/proc/self/exe", ec).parent_path();
+            if (!ec && std::filesystem::is_directory(exe_dir / "assets", ec)) {
+                std::filesystem::current_path(exe_dir, ec);
+            }
+        }
+    }
+#endif
 
 #ifdef _WIN32
     timeBeginPeriod(1);

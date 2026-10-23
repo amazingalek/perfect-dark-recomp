@@ -18,7 +18,11 @@ every frame one VI, with its clock at real time, where its own controller reads 
 tick that would restart them, [docs/web.md](docs/web.md), Frame rate). RT64 interpolates to the display's rate (see
 [docs/building.md](docs/building.md) for the build and its findings). On Windows (clang-cl, drawing through D3D12)
 it builds and plays too: the launcher, Load ROM, Start Game, a new agent file and Defection with sound, and the save
-is there at the next start. No Windows or Linux release is offered yet: build it as docs/building.md says.
+is there at the next start. Releases for Windows (a zip: unzip it and run `PerfectDarkRecompiled.exe` from that
+folder) and Linux on x86-64 (a `.tar.gz`: extract it and run `PerfectDarkRecompiled` in that folder) are on the
+[Releases page](https://github.com/n64hub/perfect-dark-recomp/releases), without the ROM. The Linux build needs
+glibc 2.35 or newer (Ubuntu 22.04, Debian 12 or later), a Vulkan driver, and GTK 3 and FreeType, which desktop
+distributions have; it brings its own SDL2. Or build it as docs/building.md says.
 
 Still wrong or not yet checked:
 
