@@ -170,6 +170,7 @@ jobs:
           prefix="build-v1-$ImageOS-"
           echo "prefix=$prefix" >> "$GITHUB_OUTPUT"
           echo "key=$prefix$ImageVersion-$(git ls-tree HEAD lib | git hash-object --stdin)" >> "$GITHUB_OUTPUT"
+          echo "apt=apt-$ImageOS-$ImageVersion" >> "$GITHUB_OUTPUT"
       - uses: actions/cache@v4
         id: cache
         with:
@@ -192,10 +193,21 @@ jobs:
             echo "attempt $i failed"; sleep $((i * 15))
           done
           exit 1
+      # The .debs apt installed are cached per runner image and installed with dpkg, as rush-2049-recomp's CI does: now
+      # and then the mirror sends its 133 packages at seconds each (10 minutes and more, where the 30 MB takes ~8 s). On
+      # the same image they are the same set apt would pick.
+      - uses: actions/cache@v4
+        with:
+          path: ~/apt-archives
+          key: ${{ steps.key.outputs.apt }}
       - name: Install dependencies
         run: |
+          pkgs="clang lld libsdl2-dev libgtk-3-dev libfreetype-dev"
+          if ls ~/apt-archives/*.deb > /dev/null 2>&1 && sudo dpkg -i ~/apt-archives/*.deb > /dev/null &&
+              dpkg -s $pkgs > /dev/null; then exit 0; fi
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends clang lld libsdl2-dev libgtk-3-dev libfreetype-dev
+          sudo apt-get install -y --no-install-recommends $pkgs
+          mkdir -p ~/apt-archives && cp /var/cache/apt/archives/*.deb ~/apt-archives/
       - uses: lukka/get-cmake@latest
         with:
           cmakeVersion: "~3.31.0"
