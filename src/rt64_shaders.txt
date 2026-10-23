@@ -25,7 +25,8 @@
 # on the route 1. Then the whole-game plan (tools/play_plan_full.json), which watches each mission's opening cutscene
 # to its end and plays its endscreen, missed 80 more in twelve missions (Defection 7, Investigation 1, Villa 5,
 # Chicago 13, Infiltration 15, Rescue 1, Escape 2, Air Base 11, Air Force One 1, Defense 3, Attack Ship 7, Skedar
-# Ruins 14), nearly the same ones in Chrome and Firefox.
+# Ruins 14), nearly the same ones in Chrome and Firefox, and its next run in each, with them, 2 more (Chicago 1,
+# Rescue 1).
 # A new recording drops them unless they are added again.
 00504240 0080eccf fcff97ff ff2dfeff 04cb540b
 00504240 0089ec4f fcffffff fffdf6fb 1cc9540b
@@ -507,6 +508,7 @@ c41049d8 00982c0f fc159804 5ffedbf8 088a000c
 0c184b50 00992c4f fc26a004 1ffc93fc 1807540c
 c41049d8 00992c4f fc26a004 1f1093fb 1ccf540c
 00504dd8 0088ac4f fc121824 ff33ffff 0802cc0c
+00504b50 00882c0f fc121824 ff33ffff 088a000c
 section g5
 c4112078 0099ac0f fc159804 5ffedbf8 1802440c
 c4112078 0098ac0f fc159804 5ffedbf8 0803540c
@@ -762,6 +764,7 @@ c4104b50 00982c0f fc1219ff fffffe38 0ccb5408
 c41049d8 00992c4f fc26a004 1f1093fb 18060088
 c4104b50 00982c4f fc1219ff fffffe38 0ccb5408
 0c184dd8 00992c0f fc26a004 1f1093ff 1ccf540c
+c41049d8 00992c0f fc26a004 1f1093fb 18060088
 section escape
 00504340 00802ccf fcffffff fffdf6fb 0800000b
 0f0a4000 00992c4f fc26a004 1ffc93fc 1807540c
