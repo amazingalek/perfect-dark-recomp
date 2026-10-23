@@ -187,3 +187,14 @@ scheduler (`g_Sched`, `g_MainNumGfxTasks`) a few milliseconds at a time and from
 `frametime_calculate` (`src/game/timing.c`) spins on `osGetCount` with no call that lets another thread run, but the
 main loop's half-frame wait before a tick leaves it little to spin: in the logos 66 of 599 calls spun, 9.7 ms in 10 s
 and 6.9 ms at most, and in Defection none. No sound was short in those plays.
+
+A mission's opening cutscene held one frame of 8 VIs (133 ms) as each of its shots started, every 1-7 s, on the
+desktop build and the page alike, and on a console too: `player_start_cutscene2` stops every controller's rumble
+(`paks_stop`), and the game's `joy_stop_rumble` (`src/lib/joy.c`) stops the controllers' polling for each of the 4
+ports and starts it again, each answered at the scheduler's next retrace (N64Recomp-browser's docs/findings.md, Ruled
+out, measured). The polling stops so a console can reach the pak; here the runtime's motor calls answer at once
+beside it, so `patches/paks.c` stops the rumble without stopping the polling. The page with it beside the page Pages
+served, Defection's opening cutscene watched for 60 s in headless Chrome on a desktop GPU, Pages, build, build, Pages
+in whole GPU turns (N64Recomp-browser's `plays.jsonl`, set `pd-cutscene-rumble`): no frame of 7-8 VIs in either
+play of the build against 17 and 14, and 1 present gap over 100 ms in each (the mission's load) against 10 and 12;
+no WebGPU errors, no shader missed.
