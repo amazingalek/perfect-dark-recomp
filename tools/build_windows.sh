@@ -7,20 +7,30 @@
 #     tools/build_windows.sh [cpus]
 #
 # On PATH: clang-cl and lld-link, CMake 3.20-3.31 and Ninja, and wsl, whose default distro has clang, ld.lld and make
-# for patches/ (CMakeLists.txt, PATCHES_MAKE). clang-cl finds the MSVC libraries and the Windows SDK by itself where
-# Visual Studio or its Build Tools are installed, or else from INCLUDE and LIB.
+# for patches/ (CMakeLists.txt, PATCHES_MAKE). Without WSL, set MIPS_CC to a Windows clang with a MIPS backend (MSYS2's
+# clang64 has one) and MIPS_LD to an ld.lld, with GNU make on PATH: patches/ builds with those instead. clang-cl finds
+# the MSVC libraries and the Windows SDK by itself where Visual Studio or its Build Tools are installed, or else from
+# INCLUDE and LIB.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 CPUS=${1:-$(nproc)}
 cd "$ROOT"
-for tool in clang-cl lld-link cmake ninja wsl; do
+patches=()
+if [[ -n "${MIPS_CC:-}" ]]; then
+    patches=(-DPATCHES_MAKE=make -DPATCHES_C_COMPILER="$(cygpath -m "$MIPS_CC")" -DPATCHES_LD="$(cygpath -m "${MIPS_LD:?set MIPS_LD with MIPS_CC}")")
+    tools=(clang-cl lld-link cmake ninja make)
+else
+    tools=(clang-cl lld-link cmake ninja wsl)
+fi
+for tool in "${tools[@]}"; do
     command -v "$tool" > /dev/null || { echo "$tool isn't on PATH (tools/build_windows.sh says what the build needs)" >&2; exit 1; }
 done
-wsl which clang ld.lld make > /dev/null || { echo "WSL has no clang, ld.lld or make, which patches/ needs" >&2; exit 1; }
+[[ -n "${MIPS_CC:-}" ]] || wsl which clang ld.lld make > /dev/null ||
+    { echo "WSL has no clang, ld.lld or make, which patches/ needs" >&2; exit 1; }
 git submodule update --init --recursive lib/N64ModernRuntime lib/rt64 lib/RecompFrontend lib/N64Recomp-browser
 tools/recompile.sh -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl
 mkdir -p build
 cmake -S . -B build/windows -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=clang-cl \
-    -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_LINKER=lld-link > build/configure-windows.log 2>&1 ||
+    -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_LINKER=lld-link "${patches[@]}" > build/configure-windows.log 2>&1 ||
     { tail -30 build/configure-windows.log; exit 1; }
 ninja -C build/windows -j"$CPUS" PerfectDarkRecompiled
